@@ -17,3 +17,13 @@ class CSV(models.Model):
     def __str__ (self):
         return self.address
 
+
+
+
+class Lottery(models.Model):
+    firstname = models.CharField(max_length=120)
+    lastname = models.CharField(max_length=120)
+    email = models.CharField(max_length=120, unique=True)
+    walletaddress = models.CharField(max_length=120, unique=True)
+
+

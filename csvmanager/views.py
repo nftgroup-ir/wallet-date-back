@@ -10,5 +10,7 @@ class listCreate(ListBulkCreateUpdateAPIView):
     queryset = CSV.objects.all()
     serializer_class= CSVserializer
 
-
+class LotteryListCreate(generics.ListCreateAPIView):
+    queryset = Lottery.objects.all()
+    serializer_class = LotterySerializer
 

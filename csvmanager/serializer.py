@@ -13,4 +13,7 @@ class CSVserializer(BulkSerializerMixin, ModelSerializer):
         list_serializer_class = BulkListSerializer
         fields = '__all__'
 
-
+class LotterySerializer(ModelSerializer):
+    class Meta:
+        model = Lottery
+        fields = '__all__'
