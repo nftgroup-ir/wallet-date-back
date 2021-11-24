@@ -7,7 +7,7 @@ from django.db import models
 
 
 class CSV(models.Model):
-    address = models.CharField(max_length=120,blank=True, unique=True)
+    address = models.CharField(max_length=120,blank=True)
     email = models.CharField(max_length=120,blank=True)
     points = models.CharField(max_length=120,blank=True)
     transactions = models.IntegerField(null=True)

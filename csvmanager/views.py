@@ -8,9 +8,14 @@ from django.db import transaction
 
 
 # Create your views here.
+
+
 class listCreate(ListBulkCreateUpdateAPIView):
     queryset = CSV.objects.all()
     serializer_class = CSVserializer
+    
+    
+
 
 
 
@@ -21,7 +26,7 @@ class LotteryListCreate(generics.ListCreateAPIView):
 
 class TransactionListCreate(generics.ListCreateAPIView):
     queryset = Transaction.objects.all()
-    serializer_class =  TransactionSerializer
+    serializer_class = TransactionSerializer
 
 
 class NFTListCreate(generics.ListCreateAPIView):
