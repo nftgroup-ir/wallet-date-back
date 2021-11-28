@@ -1,4 +1,5 @@
 from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 from .models import *
 from rest_framework_bulk import (
     BulkListSerializer,
@@ -6,15 +7,21 @@ from rest_framework_bulk import (
 )
 
 
-
+class BalanceDataSerializer(ModelSerializer):
+    class Meta:
+        model = BalanceData
+        fields = '__all__'
+        
 class CSVserializer(BulkSerializerMixin, ModelSerializer):
+    balancedata = serializers.SerializerMethodField()
     class Meta(object):
         model = CSV
         list_serializer_class = BulkListSerializer
         fields = '__all__'
-        extra_kwargs = {
-            'address': {'validators': []},
-        }
+    def get_balancedata(self, id):
+        balanceofdata = BalanceData.objects.filter(parent = id).distinct()
+        return BalanceDataSerializer(balanceofdata, many=True).data
+
 
 class LotterySerializer(ModelSerializer):
     class Meta:
@@ -32,7 +39,3 @@ class NFTSerializer(ModelSerializer):
         model = NFT
         fields = '__all__'
 
-class BalanceDataSerializer(ModelSerializer):
-    class Meta:
-        model = BalanceData
-        fields = '__all__'
