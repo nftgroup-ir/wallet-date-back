@@ -19,8 +19,8 @@ class BalanceDataSerializer(ModelSerializer):
 
         
 class CSVserializer(BulkSerializerMixin, ModelSerializer):
+    transactions = serializers.SerializerMethodField()
     balancedata = serializers.SerializerMethodField()
-    transaction = serializers.SerializerMethodField()
     nft = serializers.SerializerMethodField()
 
     class Meta(object):
@@ -28,13 +28,21 @@ class CSVserializer(BulkSerializerMixin, ModelSerializer):
         list_serializer_class = BulkListSerializer
         fields = '__all__'
 
+
+    def get_transactions(self, id):
+        number_of_transactions = Transaction.objects.filter(parent=id).distinct()
+        x = len(number_of_transactions)
+        return x
+
     def get_balancedata(self, id):
         balanceofdata = BalanceData.objects.filter(parent=id).distinct()
-        return BalanceDataSerializer(balanceofdata, many=True).data
+        if len(balanceofdata) == 0:
+            balanceofdata = 0
+        else:
+            balanceofdata = balanceofdata[0]
+        return balanceofdata
 
-    def get_transaction(self, id):
-        transactions = Transaction.objects.filter(parent=id).distinct()
-        return TransactionSerializer(transactions, many=True).data
+
 
     def get_nft(self, id):
         nftofwallet = NFT.objects.filter(parent=id).distinct()
@@ -56,3 +64,9 @@ class NFTSerializer(ModelSerializer):
         model = NFT
         fields = '__all__'
 
+
+class AddressSerializer(BulkSerializerMixin, ModelSerializer):
+    class Meta(object):
+        model = CSV
+        list_serializer_class = BulkListSerializer
+        fields = ['address']

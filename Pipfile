@@ -11,6 +11,9 @@ djangorestframework-bulk = "*"
 mysqlclient = "*"
 django-rest-auth = "*"
 django-allauth = "*"
+selenium = "*"
+requests = "*"
+urllib3 = "*"
 
 [dev-packages]
 

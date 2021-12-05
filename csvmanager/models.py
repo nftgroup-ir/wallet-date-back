@@ -30,7 +30,23 @@ class NFT(models.Model):
 
 class Transaction(models.Model):
     parent = models.ForeignKey(CSV, on_delete=models.CASCADE)
-    transaction = models.JSONField()
+    hash = models.CharField(null=True,max_length=120)
+    nonc = models.IntegerField(null=True)
+    transaction_index = models.IntegerField(null=True)
+    from_address = models.CharField(max_length=120, null=True)
+    to_address = models.CharField(max_length=120, null=True)
+    value = models.CharField(null=True, max_length=120)
+    gas = models.IntegerField(null=True)
+    gas_price = models.BigIntegerField(null=True)
+    input = models.CharField(max_length=120, null=True)
+    receipt_cumulative_gas_used = models.IntegerField(null=True)
+    receipt_gas_used = models.IntegerField(null=True)
+    receipt_contract_address = models.CharField(max_length=120, null=True)
+    receipt_root = models.CharField(max_length=120, null=True)
+    receipt_status = models.IntegerField(null=True)
+    block_timestamp = models.DateTimeField(auto_now_add=True)
+    block_number = models.IntegerField(null=True)
+    block_hash = models.CharField(max_length=120, null=True)
 
 
 class Lottery(models.Model):
