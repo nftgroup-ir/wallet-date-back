@@ -9,6 +9,7 @@ import requests
 import json
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 
 
 
@@ -48,9 +49,13 @@ class BalanceDataListCreate(generics.ListCreateAPIView):
 
 
 def scrape(request):
-    from selenium import webdriver
 
-    driver = webdriver.Firefox(executable_path="C:\FireFoxDriver\geckodriver.exe")
+    options = Options()
+    options.add_argument("--no-sandbox")
+    options.add_argument("--headless")
+    firefox_binary = FirefoxBinary('/usr/bin/firefox')
+    driver = webdriver.Firefox(options=options,firefox_binary=firefox_binary)
+
     driver.get('https://etherscan.io/accounts/')
     books = driver.find_elements_by_tag_name('tr')
     count = 0
