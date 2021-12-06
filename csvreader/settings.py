@@ -161,7 +161,9 @@ AUTH_USER_MODEL = 'users.CustomUser'
 # server will be running is safe to receive requests
 # from. All all of this.
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'http://analyzer.tokyn.ir/',
+    'http://tokyn.ir/',
 ]
 
 # Django All Auth config. Add all of this.
