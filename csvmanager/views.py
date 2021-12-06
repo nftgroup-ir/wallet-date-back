@@ -7,6 +7,9 @@ from django.db.utils import DatabaseError,IntegrityError
 from django.db import transaction
 import requests
 import json
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+
 
 
 # Create your views here.
@@ -44,7 +47,7 @@ class BalanceDataListCreate(generics.ListCreateAPIView):
     serializer_class = BalanceDataSerializer
 
 
-def scrape():
+def scrape(request):
     from selenium import webdriver
 
     driver = webdriver.Firefox(executable_path="C:\FireFoxDriver\geckodriver.exe")
