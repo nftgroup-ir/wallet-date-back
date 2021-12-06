@@ -12,8 +12,8 @@ class CSV(models.Model):
     points = models.CharField(max_length=120,blank=True)
     transactions = models.IntegerField(null=True)
     balance = models.FloatField(null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    # created_at = models.DateTimeField(auto_now_add=True)
+    # updated_at = models.DateTimeField(auto_now=True)
     def __str__ (self):
         return self.address
 
