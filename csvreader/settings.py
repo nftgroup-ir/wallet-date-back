@@ -160,11 +160,11 @@ AUTH_USER_MODEL = 'users.CustomUser'
 # Specifies localhost port 3000 where the React
 # server will be running is safe to receive requests
 # from. All all of this.
-CORS_ALLOWED_ORIGINS = [
+CORS_ALLOWED_ORIGINS = (
     'http://localhost:3000',
     'http://analyzer.tokyn.ir/',
-    'http://tokyn.ir/',
-]
+    'http://tokyn.ir/'
+)
 
 # Django All Auth config. Add all of this.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
