@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-#m72%hv7_2_hj)77mx3g%du$shfq76#1dpfgx2n&ni-u0vk3#s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['65.108.59.117','tokyn.ir']
 
 
 # Application definition
@@ -151,6 +151,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+CORS_ORIGIN_ALLOW_ALL = True 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -161,9 +162,6 @@ AUTH_USER_MODEL = 'users.CustomUser'
 # Specifies localhost port 3000 where the React
 # server will be running is safe to receive requests
 # from. All all of this.
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000'
-]
 
 # Django All Auth config. Add all of this.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
