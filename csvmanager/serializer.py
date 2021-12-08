@@ -45,8 +45,9 @@ class CSVserializer(BulkSerializerMixin, ModelSerializer):
 
 
     def get_nft(self, id):
-        nftofwallet = NFT.objects.filter(parent=id).distinct()
-        return  NFTSerializer(nftofwallet, many=True, read_only = True).data
+        number_of_nfts = NFT.objects.filter(parent=id).distinct()
+        y = len(number_of_nfts)
+        return  y
 
 
 

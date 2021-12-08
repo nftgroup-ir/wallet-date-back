@@ -11,7 +11,8 @@ urlpatterns = [
         path('csv/nft/', views.NFTListCreate.as_view(), name='NFTListCreate'),
         path('csv/balancedata/', views.BalanceDataListCreate.as_view(), name='BalanceDataListCreate'),
         path('csv/scrape/', views.scrape , name = 'scrape'),
-        path('csv/AddressSerializer/', views.AddressSerializer.as_view(), name = 'AddressSerializer'),
-        path('csv/get_transactions/', views.transactiondetails, name = 'transactiondetails')
+        path('csv/get_transactions/', views.transactiondetails, name = 'transactiondetails'),
+        path('csv/get_nfts/', views.nftDetails, name = 'nftDetails'),
+        #path('csv/get_balance/', views.balanceDetails, name = 'nftDetails'),
 ]
 

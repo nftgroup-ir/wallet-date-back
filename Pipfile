@@ -14,6 +14,7 @@ django-allauth = "*"
 selenium = "*"
 requests = "*"
 urllib3 = "*"
+django-filter = "*"
 
 [dev-packages]
 
