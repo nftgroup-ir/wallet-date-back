@@ -17,7 +17,7 @@ class BalanceDataSerializer(ModelSerializer):
         model = BalanceData
         fields = '__all__'
 
-        
+
 class CSVserializer(BulkSerializerMixin, ModelSerializer):
     transactions = serializers.SerializerMethodField()
     balancedata = serializers.SerializerMethodField()

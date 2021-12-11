@@ -7,13 +7,8 @@ from django.db import models
 
 
 class CSV(models.Model):
-    address = models.CharField(max_length=120,blank=True)
-    email = models.CharField(max_length=120,blank=True)
-    points = models.CharField(max_length=120,blank=True)
-    transactions = models.IntegerField(null=True)
-    balance = models.FloatField(null=True)
-    # created_at = models.DateTimeField(auto_now_add=True)
-    # updated_at = models.DateTimeField(auto_now=True)
+    address = models.CharField(max_length=120,unique = True)
+
     def __str__ (self):
         return self.address
 
@@ -38,12 +33,14 @@ class NFT(models.Model):
     metadata = models.TextField(null = True)
     synced_at = models.DateTimeField(null = True, auto_now_add=True)
     is_valid = models.IntegerField(null =True)
-    syncing = models.TextField()
-    frozen = models.TextField()
+    syncing = models.TextField(null = True)
+    frozen = models.TextField(null = True)
+    field_unique = models.TextField(null = True)
+    
 
 class Transaction(models.Model):
     parent = models.ForeignKey(CSV, on_delete=models.CASCADE)
-    hash = models.CharField(null=True,max_length=120)
+    hash = models.CharField(null=True,max_length=120, unique = True)
     nonc = models.IntegerField(null=True)
     transaction_index = models.IntegerField(null=True)
     from_address = models.CharField(max_length=120, null=True)

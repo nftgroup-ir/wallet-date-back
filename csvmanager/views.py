@@ -14,9 +14,12 @@ from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 
 
 
-class listCreate(ListBulkCreateUpdateAPIView):
+
+
+class listCreate(generics.ListCreateAPIView):
     queryset = CSV.objects.all()
     serializer_class = CSVserializer
+
 
 
 
@@ -43,39 +46,35 @@ class BalanceDataListCreate(generics.ListCreateAPIView):
     serializer_class = BalanceDataSerializer
     filterset_fields = ['parent']
 
-def scrape(requestt):
-    driver = webdriver.Firefox(executable_path="C:\FireFoxDriver\geckodriver.exe")
-
+# def scrape(requestt):
+#
+#     options = Options()
+#     options.add_argument("--no-sandbox")
+#     options.add_argument("--headless")
+#     firefox_binary = FirefoxBinary('/usr/bin/firefox')
+#     driver = webdriver.Firefox(options=options, firefox_binary=firefox_binary)
 
 def scrape(request):
-
-    options = Options()
-    options.add_argument("--no-sandbox")
-    options.add_argument("--headless")
-    firefox_binary = FirefoxBinary('/usr/bin/firefox')
-    driver = webdriver.Firefox(options=options,firefox_binary=firefox_binary)
+    driver = webdriver.Firefox(executable_path=Driver_path)
     driver.get('https://etherscan.io/accounts/')
-    books = driver.find_elements_by_tag_name('tr')
+    all_addresses = driver.find_elements_by_tag_name('tr')
     count = 0
     while True:
         if count == 2:
             break
         count += 1
         print('page ', count)
-        books = driver.find_elements_by_tag_name('tr')
+        all_addresses = driver.find_elements_by_tag_name('tr')
 
-        for book in books:
+        for one_address in all_addresses:
             try:
-                name = book.find_elements_by_tag_name('td')[1]
+                name = one_address.find_elements_by_tag_name('td')[1]
                 try:
                     address = name.find_elements_by_tag_name('a')[0].text
-                    csv = CSV(address = address)
-                    csv.save()
+                    csv , created = CSV.objects.update_or_create(address = address)
 
                 except:
                     address = 'Not availbale'
-                print('name:', name)
-                print('address :', address)
                 print('_' * 100)
             except:
                 pass
@@ -94,22 +93,20 @@ def transactiondetails(request):
         response = requests.get(f"https://api.covalenthq.com/v1/1/address/{i.address}/transactions_v2/?key=ckey_12d0a9ab40ec40778e2f5f7965c")
         data = response.json()
         for k in data['data']['items']:
-            new_transaction = Transaction()
-            new_transaction.from_address = k['from_address']
-            new_transaction.hash = k['tx_hash']
-            new_transaction.from_address = k['from_address']
-            new_transaction.to_address = k['to_address']
-            new_transaction.value = k['value']
-            new_transaction.parent_id = i.id
-            new_transaction.gas_price = k['gas_price']
-            new_transaction.receipt_gas_used = k['gas_spent']
-            new_transaction.save()
-            print(new_transaction)
+
+            obj , created = Transaction.objects.update_or_create(
+            hash = k['tx_hash'],
+            defaults = {
+            'from_address' : k['from_address'],'to_address' : k['to_address'], 'value' : k['value'], 'parent_id' : i.id, 'gas_price' : k['gas_price'], 'receipt_gas_used' : k['gas_spent'],
+
+                }
+            )
 
 
-    
-    
-    
+
+
+
+
 def  nftDetails(request):
     csv = CSV.objects.all()
     count  = 0
@@ -121,24 +118,27 @@ def  nftDetails(request):
         data = response.json()
         if data['result']:
             for k in data['result']:
-                new_nft = NFT()
-                new_nft.parent_id = i.id
-                new_nft.token_address = k['token_address']
-                new_nft.token_id = k['token_id']
-                new_nft.block_number_minted = k['block_number_minted']
-                new_nft.owner_of = k['owner_of']
-                new_nft.block_number = k['block_number']
-                new_nft.amount = k['amount']
-                new_nft.contract_type = k['contract_type']
-                new_nft.name = k['name']
-                new_nft.symbol = k['symbol']
-                new_nft.token_uri = k['token_uri']
-                new_nft.metadata = k['metadata']
-                new_nft.synced_at = k['synced_at']
-                new_nft.is_valid = k['is_valid']
-                new_nft.syncing = k['syncing']
-                new_nft.frozen = k['frozen']
-                new_nft.save()
+                token_address = k['token_address']
+                token_id = k['token_id']
+                field_unique_process = ""
+                field_unique_process = token_address + token_id
+                new_nft , created = NFT.objects.update_or_create(field_unique = field_unique_process,
+                defaults = { "parent_id" : i.id , "token_address" : k['token_address'] ,
+                             "token_id" : k['token_id'] ,
+                             "block_number_minted" : k['block_number_minted'] ,
+                             "owner_of" : k['owner_of'],
+                             "block_number" : k['block_number'],
+                             "amount" : k['amount'],
+                             "contract_type" :  k['contract_type'],
+                             "name" : k['name'],
+                             "symbol" : k['symbol'],
+                             "token_uri" : k['token_uri'],
+                             "metadata" : k['metadata'],
+                             "synced_at" : k['synced_at'],
+                             "is_valid" : k['is_valid'],
+                             "syncing" : k['syncing'],
+                             "frozen" :  k['frozen'],
+                             "field_unique" : field_unique_process })
         else:
             continue
 
