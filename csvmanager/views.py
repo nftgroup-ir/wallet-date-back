@@ -46,17 +46,14 @@ class BalanceDataListCreate(generics.ListCreateAPIView):
     serializer_class = BalanceDataSerializer
     filterset_fields = ['parent']
 
-# def scrape(requestt):
-#
-#     options = Options()
-#     options.add_argument("--no-sandbox")
-#     options.add_argument("--headless")
-#     firefox_binary = FirefoxBinary('/usr/bin/firefox')
-#     driver = webdriver.Firefox(options=options, firefox_binary=firefox_binary)
+    # driver.get('https://etherscan.io/accounts/')
 
 def scrape(request):
-    driver = webdriver.Firefox(executable_path=Driver_path)
-    driver.get('https://etherscan.io/accounts/')
+    options = Options()
+    options.add_argument("--no-sandbox")
+    options.add_argument("--headless")
+    firefox_binary = FirefoxBinary('/usr/bin/firefox')
+    driver = webdriver.Firefox(options=options, firefox_binary=firefox_binary)
     all_addresses = driver.find_elements_by_tag_name('tr')
     count = 0
     while True:
