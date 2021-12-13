@@ -80,12 +80,10 @@ def scrape(request):
         print('|' * 100)
 
 
-class AddressSerializer(ListBulkCreateUpdateAPIView):
-    queryset = CSV.objects.all()
-    serializer_class = AddressSerializer
 
 def transactiondetails(request):
     csv = CSV.objects.all()
+    total_Txs = 0
     for i in csv:
         response = requests.get(f"https://api.covalenthq.com/v1/1/address/{i.address}/transactions_v2/?key=ckey_12d0a9ab40ec40778e2f5f7965c")
         data = response.json()
@@ -98,6 +96,10 @@ def transactiondetails(request):
 
                 }
             )
+            total_Txs+=1
+        
+        
+        
 
 
 
@@ -113,6 +115,8 @@ def  nftDetails(request):
         count+=1
         response = requests.get(f"https://deep-index.moralis.io/api/v2/{i.address}/nft?chain=eth&format=decimal", headers = {"accept":"application/json", "X-API-Key":"Xv6WsHrCbYI3ebzEuHlaBWXZbdRo0tvpDaI9zH8CbffKzClvWp5nX2BkWuRGUbp2"})
         data = response.json()
+        if data['total']:
+            i.total_nft = data['total']
         if data['result']:
             for k in data['result']:
                 token_address = k['token_address']
@@ -138,6 +142,72 @@ def  nftDetails(request):
                              "field_unique" : field_unique_process })
         else:
             continue
+
+class filters(generics.ListAPIView):
+    queryset = CSV.objects.all()
+    serializer_class = CSVserializer
+    def get(self,  *args, **kwargs):
+
+        queryset=CSV.objects.all()
+        #NFT
+        if self.request.GET.NFTCount != "":
+            if self.request.GET.NFTOperator == 'gt':
+                queryset = queryset.filter(total_nfts__gt=self.request.GET.NFTCount)
+            elif self.request.GET.NFTOperator == 'lt':
+                queryset = queryset.filter(total_nfts__lt=self.request.GET.NFTCount)
+            elif self.request.GET.NFTOperator == 'eq':
+                queryset = queryset.filter(total_nfts=self.request.GET.NFTCount)
+
+
+        if self.request.GET.NFTSortBy != 'none':
+            if self.request.GET.NFTSortBy=="ASC":
+                queryset = queryset.order_by('total_nfts')
+            elif self.request.GET.NFTSortBy=="DESC":
+                queryset = queryset.order_by('-total_nfts')
+
+        #Tx
+        if self.request.GET.TxCount != "":
+            if self.request.GET.TxOperator == 'gt':
+                queryset = queryset.filter(total_Txs__gt=self.request.GET.TxCount)
+            elif self.request.GET.TxOperator == 'lt':
+                queryset = queryset.filter(total_Txs__lt=self.request.GET.TxCount)
+            elif self.request.GET.TxOperator == 'eq':
+                queryset = queryset.filter(total_Txs=self.request.GET.TxCount)
+
+        if self.request.GET.TxSortBy != 'none':
+            if self.request.GET.TxSortBy=="ASC":
+                queryset = queryset.order_by('total_Txs')
+            elif self.request.GET.TxSortBy=="DESC":
+                queryset = queryset.order_by('-total_Txs')
+
+        #Balance
+        if self.request.GET.BalanceValue != "":
+            if self.request.GET.BalanceOperator == 'gt':
+                queryset = queryset.filter(total_balances__gt=self.request.GET.BalanceValue)
+            elif self.request.GET.BalanceOperator == 'lt':
+                queryset = queryset.filter(total_balances__lt=self.request.GET.BalanceValue)
+            elif self.request.GET.BalanceOperator == 'eq':
+                queryset = queryset.filter(total_balances=self.request.GET.BalanceValue)
+
+        if self.request.GET.BalanceSortBy != 'none':
+            if self.request.GET.BalanceSortBy=="ASC":
+                queryset = queryset.order_by('total_balances')
+            elif self.request.GET.BalanceSortBy=="DESC":
+                queryset = queryset.order_by('-total_balances')
+        return queryset
+
+
+
+
+
+
+        
+
+
+
+
+
+
 
 
 

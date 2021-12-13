@@ -66,8 +66,7 @@ class NFTSerializer(ModelSerializer):
         fields = '__all__'
 
 
-class AddressSerializer(BulkSerializerMixin, ModelSerializer):
+class filters(BulkSerializerMixin, ModelSerializer):
     class Meta(object):
         model = CSV
-        list_serializer_class = BulkListSerializer
-        fields = ['address']
+        fields = '__all__'

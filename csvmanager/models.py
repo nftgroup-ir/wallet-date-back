@@ -8,7 +8,8 @@ from django.db import models
 
 class CSV(models.Model):
     address = models.CharField(max_length=120,unique = True)
-
+    total_nfts = models.BigIntegerField(null=True)
+    total_Txs = models.BigIntegerField(null=True)
     def __str__ (self):
         return self.address
 
@@ -36,7 +37,7 @@ class NFT(models.Model):
     syncing = models.TextField(null = True)
     frozen = models.TextField(null = True)
     field_unique = models.TextField(null = True)
-    
+
 
 class Transaction(models.Model):
     parent = models.ForeignKey(CSV, on_delete=models.CASCADE)
