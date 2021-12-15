@@ -18,9 +18,9 @@ class BalanceDataSerializer(ModelSerializer):
         fields = '__all__'
 
 
-class CSVserializer(BulkSerializerMixin, ModelSerializer):
+class CSVserializer(ModelSerializer):
     transactions = serializers.SerializerMethodField()
-    balancedata = serializers.SerializerMethodField()
+    # balancedata = serializers.SerializerMethodField()
     nft = serializers.SerializerMethodField()
 
     class Meta(object):
@@ -34,13 +34,13 @@ class CSVserializer(BulkSerializerMixin, ModelSerializer):
         x = len(number_of_transactions)
         return x
 
-    def get_balancedata(self, id):
-        balanceofdata = BalanceData.objects.filter(parent=id).distinct()
-        if len(balanceofdata) == 0:
-            balanceofdata = 0
-        else:
-            balanceofdata = balanceofdata[0]
-        return balanceofdata
+    # def get_balancedata(self, id):
+    #     balanceofdata = BalanceData.objects.filter(parent=id).distinct()
+    #     if len(balanceofdata) == 0:
+    #         balanceofdata = 0
+    #     else:
+    #         balanceofdata = balanceofdata[0]
+    #     return balanceofdata
 
 
 

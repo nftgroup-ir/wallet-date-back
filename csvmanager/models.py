@@ -10,13 +10,26 @@ class CSV(models.Model):
     address = models.CharField(max_length=120,unique = True)
     total_nfts = models.BigIntegerField(null=True)
     total_Txs = models.BigIntegerField(null=True)
+    balance = models.TextField(null=True)
     def __str__ (self):
         return self.address
 
 
 class BalanceData(models.Model):
-    balance = models.CharField(null=True,max_length=120)
     parent = models.ForeignKey(CSV, on_delete=models.CASCADE)
+    contract_decimals = models.BigIntegerField(null=True) 
+    contract_name =  models.TextField(null=True)
+    contract_ticker_symbol = models.TextField(null=True)
+    contract_address = models.CharField(null=True,max_length=120, unique = True)
+    logo_url = models.TextField(null=True)
+    last_transferred_at = models.DateTimeField(null=True)
+    type = models.TextField(null=True) 
+    balance = models.TextField(null=True)
+    balance_24h = models.TextField(null= True)
+    quote_rate = models.TextField(null=True)
+    quote_rate_24h = models.TextField(null=True)
+    quote = models.TextField(null=True)
+    quote_24h = models.TextField(null=True)
 
 
 class NFT(models.Model):
@@ -32,7 +45,7 @@ class NFT(models.Model):
     symbol = models.TextField(null = True)
     token_uri = models.TextField(null = True)
     metadata = models.TextField(null = True)
-    synced_at = models.DateTimeField(null = True, auto_now_add=True)
+    synced_at = models.DateTimeField(null = True)
     is_valid = models.IntegerField(null =True)
     syncing = models.TextField(null = True)
     frozen = models.TextField(null = True)
@@ -55,7 +68,7 @@ class Transaction(models.Model):
     receipt_contract_address = models.CharField(max_length=120, null=True)
     receipt_root = models.CharField(max_length=120, null=True)
     receipt_status = models.IntegerField(null=True)
-    block_timestamp = models.DateTimeField(auto_now_add=True)
+    block_timestamp = models.DateTimeField(null=True)
     block_number = models.IntegerField(null=True)
     block_hash = models.CharField(max_length=120, null=True)
 
