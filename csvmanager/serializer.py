@@ -12,10 +12,7 @@ class TransactionSerializer(ModelSerializer):
         model = Transaction
         fields = '__all__'
 
-class BalanceDataSerializer(ModelSerializer):
-    class Meta:
-        model = BalanceData
-        fields = '__all__'
+
 
 
 class CSVserializer(ModelSerializer):
@@ -43,12 +40,23 @@ class CSVserializer(ModelSerializer):
     #     return balanceofdata
 
 
-
     def get_nft(self, id):
         number_of_nfts = NFT.objects.filter(parent=id).distinct()
         y = len(number_of_nfts)
         return  y
 
+
+class AddressSerializer(ModelSerializer):
+    class Meta:
+        model = CSV
+        fields = ('address')
+
+
+class BalanceDataSerializer(ModelSerializer):
+    address = AddressSerializer(many = True, read_only = True)
+    class Meta:
+        model = BalanceData
+        fields = '__all__'
 
 
 

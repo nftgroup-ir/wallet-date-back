@@ -12,7 +12,7 @@ urlpatterns = [
         path('csv/scrape/', views.scrape , name = 'scrape'),
         path('csv/get_transactions/', views.transactiondetails, name = 'transactiondetails'),
         path('csv/get_nfts/', views.nftDetails, name = 'nftDetails'),
-        path('csv/get_balance/', views.balanceDetails, name='nftDetails'),
+        path('csv/get_balances/', views.balanceDetails, name='nftDetails'),
         path('csv/', views.filters.as_view() , name = 'filters')
         #path('csv/get_balance/', views.balanceDetails, name = 'nftDetails'),
 ]
