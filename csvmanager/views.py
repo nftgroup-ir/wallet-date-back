@@ -43,8 +43,6 @@ class TransactionListCreate(generics.ListAPIView):
         #amount
         if self.request.GET['HashValue'] != "":
             queryset = queryset.filter(hash=self.request.GET['HashValue'])
-        if self.request.GET['NonceValue'] != "":
-            queryset = queryset.filter(nonc=self.request.GET['NonceValue'])
         if self.request.GET['TxIndexValue'] != "":
             queryset = queryset.filter(transaction_index=self.request.GET['TxIndexValue'])
 
@@ -53,20 +51,10 @@ class TransactionListCreate(generics.ListAPIView):
             queryset = queryset.filter(from_address=self.request.GET['FromValue'])
         if self.request.GET['ToValue'] != "":
             queryset = queryset.filter(to_address=self.request.GET['ToValue'])
-        if self.request.GET['ValueValue'] != "":
-            queryset = queryset.filter(value=self.request.GET['ValueValue'])
 
-        if self.request.GET['GasValue'] != "":
-            queryset = queryset.filter(gas=self.request.GET['GasValue'])
-        if self.request.GET['GasPriceValue'] != "":
-            queryset = queryset.filter(gas_price=self.request.GET['GasPriceValue'])
         if self.request.GET['InputValue'] != "":
             queryset = queryset.filter(input=self.request.GET['InputValue'])
 
-        if self.request.GET['RCGUValue'] != "":
-            queryset = queryset.filter(receipt_cumulative_gas_used=self.request.GET['RCGUValue'])
-        if self.request.GET['RGUValue'] != "":
-            queryset = queryset.filter(receipt_gas_used=self.request.GET['RGUValue'])
         if self.request.GET['RCUValue'] != "":
             queryset = queryset.filter(receipt_contract_address=self.request.GET['RCUValue'])
         if self.request.GET['RRValue'] != "":
@@ -99,10 +87,10 @@ class TransactionListCreate(generics.ListAPIView):
             elif self.request.GET['GasSortBy']=="DESC":
                 queryset = queryset.order_by('-gas')
 
-        if self.request.GET['GasPriceValue'] != 'none':
-            if self.request.GET['GasPriceValue']=="ASC":
+        if self.request.GET['GasPriceSortBy'] != 'none':
+            if self.request.GET['GasPriceSortBy']=="ASC":
                 queryset = queryset.order_by('gas_price')
-            elif self.request.GET['GasPriceValue']=="DESC":
+            elif self.request.GET['GasPriceSortBy']=="DESC":
                 queryset = queryset.order_by('-gas_price')
 
         if self.request.GET['RCGUSortBy'] != 'none':
