@@ -419,6 +419,15 @@ class BalanceDataListCreate(generics.ListCreateAPIView):
             elif self.request.GET['Quote24hOperator'] == 'eq':
                 queryset = queryset.filter(quote_24h=self.request.GET['Quote24hValue'])
 
+        if self.request.GET['QuoteOperator'] != "":
+            if self.request.GET['QuoteOperator'] == 'gt':
+                queryset = queryset.filter(quote__gt=self.request.GET['QuoteValue'])
+            elif self.request.GET['QuoteOperator'] == 'lt':
+                queryset = queryset.filter(quote__lt=self.request.GET['QuoteValue'])
+            elif self.request.GET['QuoteOperator'] == 'eq':
+                queryset = queryset.filter(quote=self.request.GET['QuoteValue'])
+
+
 
         return queryset
 
