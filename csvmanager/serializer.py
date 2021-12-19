@@ -46,17 +46,19 @@ class CSVserializer(ModelSerializer):
         return  y
 
 
-class AddressSerializer(ModelSerializer):
-    class Meta:
-        model = CSV
-        fields = ('address')
-
-
 class BalanceDataSerializer(ModelSerializer):
-    address = AddressSerializer(many = True, read_only = True)
+    owner = serializers.SerializerMethodField()
+
     class Meta:
         model = BalanceData
         fields = '__all__'
+
+    def get_owner(self, id):
+        print(id.parent_id)
+        owner = CSV.objects.filter(id=id.parent_id)[0].address
+        return  owner
+
+
 
 
 
