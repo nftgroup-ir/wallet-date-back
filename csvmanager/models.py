@@ -11,6 +11,7 @@ class CSV(models.Model):
     total_nfts = models.BigIntegerField(null=True)
     total_Txs = models.BigIntegerField(null=True)
     balance = models.TextField(null=True)
+    special = models.BooleanField(default=False)
     def __str__ (self):
         return self.address
 
