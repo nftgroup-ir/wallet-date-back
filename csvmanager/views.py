@@ -77,8 +77,8 @@ class TransactionListCreate(generics.ListAPIView):
             queryset = queryset.filter(block_timestamp=self.request.GET['TimeValue'])
         if self.request.GET['BlockNumberValue'] != "":
             queryset = queryset.filter(block_number=self.request.GET['BlockNumberValue'])
-        if self.request.GET['BlockHashValue '] != "":
-            queryset = queryset.filter(block_hash=self.request.GET['BlockHashValue '])
+        if self.request.GET['BlockHashValue'] != "":
+            queryset = queryset.filter(block_hash=self.request.GET['BlockHashValue'])
 
         #sort
         if self.request.GET['NonceSortBy'] != 'none':
