@@ -13,10 +13,28 @@ from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from django.db import OperationalError
 from django.http import JsonResponse
 
-
-
-
 def TxCovaltGetter(walletAddress,walletID):
+    i = CSV.objects.filter(id=walletID)[0]
+    response = requests.get(f"https://api.covalenthq.com/v1/1/address/{walletAddress}/transactions_v2/?key=ckey_12d0a9ab40ec40778e2f5f7965c")
+    if response.status_code != 400:
+        data = response.json()
+        for k in data['data']['items']:
+            obj , created = Transaction.objects.update_or_create(
+            hash = k['tx_hash'],
+            defaults = {
+                'from_address' : k['from_address'],
+                    'to_address' : k['to_address'],
+                    'value' : k['value'],
+                    'parent_id' : walletID,
+                    'gas_price' : k['gas_price'],
+                    'receipt_gas_used' : k['gas_spent'],
+
+                    }
+                )
+        i.total_Txs = len(data['data']['items'])
+        i.save()
+
+def balanceCovaltGetter(walletAddress,walletID):
     try:
         response = requests.get(
         f"https://api.covalenthq.com/v1/1/address/{walletAddress}/balances_v2/?key=ckey_12d0a9ab40ec40778e2f5f7965c")
@@ -61,7 +79,7 @@ def NftMoralisGetter(walletAddress,walletID):
                 field_unique_process = ""
                 field_unique_process = token_address + token_id
                 new_nft , created = NFT.objects.update_or_create(field_unique = field_unique_process,
-                defaults = { "parent_id" : i.id , "token_address" : k['token_address'] ,
+                defaults = { "parent_id" : walletID , "token_address" : k['token_address'] ,
                                 "token_id" : k['token_id'] ,
                                 "block_number_minted" : k['block_number_minted'] ,
                                 "owner_of" : k['owner_of'],
@@ -86,12 +104,20 @@ def NftMoralisGetter(walletAddress,walletID):
 def getWalletDate(request):
     walletID = CSV.objects.filter(address=request.GET['wallet'])[0].id
     walletAddress = request.GET['wallet']
+
+
     if not 'Tx' in request.GET:
         txResult= TxCovaltGetter(walletAddress,walletID)
     elif  request.GET['Tx'] != 'false' :
         txResult= TxCovaltGetter(walletAddress,walletID)
     else: txResult ="canceled"
 
+    if not 'balance' in request.GET:
+        balanceResult= balanceCovaltGetter(walletAddress,walletID)
+    elif  request.GET['balance'] != 'false' :
+        balanceResult= balanceCovaltGetter(walletAddress,walletID)
+    else: balanceResult ="canceled"
+    
 
     if not 'NFT' in request.GET:
         NFTResult= NftMoralisGetter(walletAddress,walletID)
@@ -106,9 +132,13 @@ def getWalletDate(request):
         if NFTResult: NFTResult = "success"
         else: NFTResult= "error"
 
+    if not isinstance(balanceResult, str) :   
+        if balanceResult: balanceResult = "success"
+        else: balanceResult= "error"
+
 
     responseData = {
-        'result': 'transactions:'+txResult+' and NFTs Update:'+NFTResult+' for '+ walletAddress,
+        'result': 'transactions:'+txResult+' and NFTs Update:'+NFTResult+' and Balance:'+balanceResult+' for '+ walletAddress,
     } 
 
 
