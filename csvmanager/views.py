@@ -666,6 +666,13 @@ class filters(generics.ListAPIView):
 
     def get_queryset(self,*args, **kwargs  ):
         queryset=CSV.objects.all()
+
+        if 'special' in self.request.GET:
+            if self.request.GET['special'] =='false':
+                queryset = queryset.filter(special=False)
+            elif self.request.GET['special'] =='true':
+                queryset = queryset.filter(special=True)
+
         #NFT
         if self.request.GET['NFTCount'] != "":
             if self.request.GET['NFTOperator'] == 'gt':
