@@ -11,10 +11,111 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from django.db import OperationalError
+from django.http import JsonResponse
 
 
 
 
+def TxCovaltGetter(walletAddress,walletID):
+    try:
+        response = requests.get(
+        f"https://api.covalenthq.com/v1/1/address/{walletAddress}/balances_v2/?key=ckey_12d0a9ab40ec40778e2f5f7965c")
+        if response.status_code != 400:
+            data = response.json()
+            for k in data['data']['items']:
+                new_balance, created = BalanceData.objects.update_or_create(contract_address=k["contract_address"],
+                                        defaults={
+                                                  "parent_id": walletID,
+                                                  "contract_decimals": k['contract_decimals'],
+                                                  "contract_name": k['contract_name'],
+                                                  "contract_ticker_symbol": k['contract_ticker_symbol'],
+                                                  "contract_address": k['contract_address'],
+                                                  "logo_url": k['logo_url'],
+                                                  "last_transferred_at": k['last_transferred_at'],
+                                                  "type": k['type'],
+                                                  "balance": k['balance'],
+                                                  "balance_24h": k['balance_24h'],
+                                                  "quote_rate": k['quote_rate'],
+                                                  "quote_rate_24h": k['quote_rate_24h'],
+                                                  "quote": k['quote'],
+                                                  "quote_24h": k['quote_24h'],
+                                              })
+            return True
+    except OperationalError:
+        return False
+
+def NftMoralisGetter(walletAddress,walletID):
+    try:
+        response = requests.get(f"https://deep-index.moralis.io/api/v2/{walletAddress}/nft?chain=eth&format=decimal", headers = {"accept":"application/json", "X-API-Key":"Xv6WsHrCbYI3ebzEuHlaBWXZbdRo0tvpDaI9zH8CbffKzClvWp5nX2BkWuRGUbp2"})
+        data = response.json()
+        i = CSV.objects.filter(id=walletID)[0]
+        if data['total']:
+            i.total_nfts = data['total']
+        else:
+            i.total_nfts = 0
+        i.save()
+        if data['result']:
+            for k in data['result']:
+                token_address = k['token_address']
+                token_id = k['token_id']
+                field_unique_process = ""
+                field_unique_process = token_address + token_id
+                new_nft , created = NFT.objects.update_or_create(field_unique = field_unique_process,
+                defaults = { "parent_id" : i.id , "token_address" : k['token_address'] ,
+                                "token_id" : k['token_id'] ,
+                                "block_number_minted" : k['block_number_minted'] ,
+                                "owner_of" : k['owner_of'],
+                                "block_number" : k['block_number'],
+                                "amount" : k['amount'],
+                                "contract_type" :  k['contract_type'],
+                                "name" : k['name'],
+                                "symbol" : k['symbol'],
+                                "token_uri" : k['token_uri'],
+                                "metadata" : k['metadata'],
+                                "synced_at" : k['synced_at'],
+                                "is_valid" : k['is_valid'],
+                                "syncing" : k['syncing'],
+                                "frozen" :  k['frozen'],
+                                "field_unique" : field_unique_process })
+            return True
+    except OperationalError:
+        return False
+
+
+
+def getWalletDate(request):
+    walletID = CSV.objects.filter(address=request.GET['wallet'])[0].id
+    walletAddress = request.GET['wallet']
+    if not 'Tx' in request.GET:
+        txResult= TxCovaltGetter(walletAddress,walletID)
+    elif  request.GET['Tx'] != 'false' :
+        txResult= TxCovaltGetter(walletAddress,walletID)
+    else: txResult ="canceled"
+
+
+    if not 'NFT' in request.GET:
+        NFTResult= NftMoralisGetter(walletAddress,walletID)
+    elif request.GET['NFT'] != 'false' :
+        NFTResult= NftMoralisGetter(walletAddress,walletID)
+    else: NFTResult = "canceled"
+
+    if not isinstance(txResult, str) :
+        if txResult: txResult = "success"
+        else: txResult= "error"
+    if not isinstance(NFTResult, str) :   
+        if NFTResult: NFTResult = "success"
+        else: NFTResult= "error"
+
+
+    responseData = {
+        'result': 'transactions:'+txResult+' and NFTs Update:'+NFTResult+' for '+ walletAddress,
+    } 
+
+
+
+    return JsonResponse(responseData)
+
+        
 
 
 
@@ -453,6 +554,7 @@ def scrape(request):
 
 def transactiondetails(request):
     csv = CSV.objects.all()
+
     for i in csv:
         response = requests.get(f"https://api.covalenthq.com/v1/1/address/{i.address}/transactions_v2/?key=ckey_12d0a9ab40ec40778e2f5f7965c")
         print(response.status_code)
