@@ -31,14 +31,17 @@ def TxCovaltGetter(walletAddress,walletID):
 
                     }
                 )
+        print(len(data['data']['items']),' TXs udated or created for ',walletAddress,)
         i.total_Txs = len(data['data']['items'])
         i.save()
+    else: print('transactions error for ',walletAddress , 'error code: ',response.status_code)
+
 
 def balanceCovaltGetter(walletAddress,walletID):
     try:
         response = requests.get(
         f"https://api.covalenthq.com/v1/1/address/{walletAddress}/balances_v2/?key=ckey_12d0a9ab40ec40778e2f5f7965c")
-        if response.status_code != 400:
+        if response.status_code == 200:
             data = response.json()
             for k in data['data']['items']:
                 new_balance, created = BalanceData.objects.update_or_create(contract_address=k["contract_address"],
@@ -58,7 +61,14 @@ def balanceCovaltGetter(walletAddress,walletID):
                                                   "quote": k['quote'],
                                                   "quote_24h": k['quote_24h'],
                                               })
+            print(len(data['data']['items']),' Balances udated or created for ',walletAddress,)
             return True
+
+        else: 
+            print('balances error for ',walletAddress , 'error code: ',response.status_code)
+            return False
+
+
     except OperationalError:
         return False
 
@@ -69,8 +79,10 @@ def NftMoralisGetter(walletAddress,walletID):
         i = CSV.objects.filter(id=walletID)[0]
         if data['total']:
             i.total_nfts = data['total']
+            totalNFT =data['total']
         else:
             i.total_nfts = 0
+            totalNFT=0
         i.save()
         if data['result']:
             for k in data['result']:
@@ -95,7 +107,9 @@ def NftMoralisGetter(walletAddress,walletID):
                                 "syncing" : k['syncing'],
                                 "frozen" :  k['frozen'],
                                 "field_unique" : field_unique_process })
-            return True
+        print(totalNFT,' NFTs udated or created for ',walletAddress,)
+        return True
+
     except OperationalError:
         return False
 
@@ -584,107 +598,36 @@ def scrape(request):
 
 def transactiondetails(request):
     csv = CSV.objects.all()
-
     for i in csv:
-        response = requests.get(f"https://api.covalenthq.com/v1/1/address/{i.address}/transactions_v2/?key=ckey_12d0a9ab40ec40778e2f5f7965c")
-        print(response.status_code)
-        if response.status_code != 400:
-
-            data = response.json()
-            print(len(data['data']['items']))
-            for k in data['data']['items']:
-
-                obj , created = Transaction.objects.update_or_create(
-                hash = k['tx_hash'],
-                defaults = {
-                'from_address' : k['from_address'],
-                    'to_address' : k['to_address'],
-                    'value' : k['value'],
-                    'parent_id' : i.id,
-                    'gas_price' : k['gas_price'],
-                    'receipt_gas_used' : k['gas_spent'],
-
-                    }
-                )
-            i.total_Txs = len(data['data']['items'])
-            i.save()
+        TxCovaltGetter(i.address,i.id)
+    responseData = {
+        'result': 'Transactions Updated',
+    } 
+    return JsonResponse(responseData)
 
 
 def balanceDetails(request):
     csv = CSV.objects.all()
     for i in csv:
-        try:
-            balances = BalanceData.objects.all().filter(parent_id=i.id).values('contract_address')
-            response = requests.get(
-                f"https://api.covalenthq.com/v1/1/address/{i.address}/balances_v2/?key=ckey_12d0a9ab40ec40778e2f5f7965c")
-            if response.status_code != 400:
-                data = response.json()
-                for k in data['data']['items']:
-                    new_balance, created = BalanceData.objects.update_or_create(contract_address=k["contract_address"],
-                                              defaults={
-                                                  "parent_id": i.id,
-                                                  "contract_decimals": k['contract_decimals'],
-                                                  "contract_name": k['contract_name'],
-                                                  "contract_ticker_symbol": k['contract_ticker_symbol'],
-                                                  "contract_address": k['contract_address'],
-                                                  "logo_url": k['logo_url'],
-                                                  "last_transferred_at": k['last_transferred_at'],
-                                                  "type": k['type'],
-                                                  "balance": k['balance'],
-                                                  "balance_24h": k['balance_24h'],
-                                                  "quote_rate": k['quote_rate'],
-                                                  "quote_rate_24h": k['quote_rate_24h'],
-                                                  "quote": k['quote'],
-                                                  "quote_24h": k['quote_24h'],
-                                              })
-        except OperationalError:
-            print(i.address)
-            continue
-                    
+        balanceCovaltGetter(i.address,i.id)
+    responseData = {
+        'result': 'balances Updated',
+    } 
+    return JsonResponse(responseData)
 
+        
 
-
+                
 
 def  nftDetails(request):
     csv = CSV.objects.all()
-    count  = 0
-    print(csv)
     for i in csv:
-        
-        response = requests.get(f"https://deep-index.moralis.io/api/v2/{i.address}/nft?chain=eth&format=decimal", headers = {"accept":"application/json", "X-API-Key":"Xv6WsHrCbYI3ebzEuHlaBWXZbdRo0tvpDaI9zH8CbffKzClvWp5nX2BkWuRGUbp2"})
-        data = response.json()
-        print(response)
-        print(data['total'])
+        NftMoralisGetter(i.address,i.id)
+    responseData = {
+        'result': 'NFTs Updated',
+    } 
+    return JsonResponse(responseData)
 
-
-        if data['total']:
-            i.total_nfts = data['total']
-        else:
-            i.total_nfts = 0
-        i.save()
-        if data['result']:
-            for k in data['result']:
-                token_address = k['token_address']
-                token_id = k['token_id']
-                field_unique_process = ""
-                field_unique_process = token_address + token_id
-                new_nft , created = NFT.objects.update_or_create(field_unique = field_unique_process,
-                defaults = { "parent_id" : i.id , "token_address" : k['token_address'] ,
-                            "token_id" : k['token_id'] ,
-                            "block_number_minted" : k['block_number_minted'] ,
-                            "owner_of" : k['owner_of'],
-                            "block_number" : k['block_number'],
-                            "amount" : k['amount'],
-                            "contract_type" :  k['contract_type'],
-                            "name" : k['name'],
-                            "symbol" : k['symbol'],
-                            "token_uri" : k['token_uri'],
-                            "metadata" : k['metadata'],
-                            "synced_at" : k['synced_at'],
-                            "is_valid" : k['is_valid'],
-                            "syncing" : k['syncing'],
-                            "frozen" :  k['frozen'],
-                            "field_unique" : field_unique_process })
 
 
 
