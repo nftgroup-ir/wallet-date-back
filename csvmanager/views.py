@@ -308,7 +308,7 @@ class TransactionListCreate(generics.ListAPIView):
             elif self.request.GET['RGUOperator'] == 'eq':
                 queryset = queryset.filter(gas=self.request.GET['RGUValue'])
 
-        return  queryset
+        return  queryset.distinct()
 
 
 
@@ -425,7 +425,7 @@ class NFTListCreate(generics.ListCreateAPIView):
             elif self.request.GET['BlockNumberMintedOperator'] == 'eq':
                 queryset = queryset.filter(block_number_minted=self.request.GET['BlockNumberMintedValue'])
 
-        return queryset
+        return queryset.distinct()
 
 
 
@@ -564,7 +564,7 @@ class BalanceDataListCreate(generics.ListCreateAPIView):
 
 
 
-        return queryset
+        return queryset.distinct()
 
     #
 
@@ -702,7 +702,7 @@ class filters(generics.ListAPIView):
             elif self.request.GET['TxSortBy']=="DESC":
                 queryset = queryset.order_by('-total_Txs')
 
-        return queryset
+        return queryset.distinct()
 
 
 
