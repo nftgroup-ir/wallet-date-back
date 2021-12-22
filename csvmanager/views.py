@@ -336,6 +336,8 @@ class NFTListCreate(generics.ListCreateAPIView):
         if self.request.GET['FrozenValue'] != "":
             queryset = queryset.filter(frozen=self.request.GET['FrozenValue'])
 
+        if self.request.GET['SymbolValue'] != "":
+            queryset = queryset.filter(symbol=self.request.GET['SymbolValue'])
 
         if self.request.GET['SyncingValue'] != "":
             queryset = queryset.filter(syncing=self.request.GET['SyncingValue']).distinct()
@@ -344,8 +346,6 @@ class NFTListCreate(generics.ListCreateAPIView):
         if self.request.GET['MetadataValue'] != "":
             queryset = queryset.filter(metadata=self.request.GET['MetadataValue'])
 
-        if self.request.GET['TokenIdValue'] != "":
-            queryset = queryset.filter(token_id=self.request.GET['TokenIdValue'])
         if self.request.GET['TokenUriValue'] != "":
             queryset = queryset.filter(token_uri=self.request.GET['TokenUriValue'])
         if self.request.GET['BlockNumberValue'] != "":
@@ -441,7 +441,9 @@ class BalanceDataListCreate(generics.ListCreateAPIView):
         # amount
 
         if self.request.GET['AddressValue'] != "":
-            queryset = queryset.filter(parent=self.request.GET['AddressValue'])
+            # csv = csv.get(address = self.request.GET['AddressValue'])
+            csvID = CSV.objects.filter(address = self.request.GET['AddressValue'])[0].id
+            queryset = queryset.filter(parent_id = csvID)
             
 
         if self.request.GET['ContractDecimalValue'] != "":
@@ -462,9 +464,9 @@ class BalanceDataListCreate(generics.ListCreateAPIView):
         # sort
         if self.request.GET['ContractDecimalSortBy'] != 'none':
             if self.request.GET['ContractDecimalSortBy'] == "ASC":
-                queryset = queryset.order_by('models.py')
+                queryset = queryset.order_by('contract_decimals')
             elif self.request.GET['ContractDecimalSortBy'] == "DESC":
-                queryset = queryset.order_by('-models.py')
+                queryset = queryset.order_by('-contract_decimals')
 
         if self.request.GET['BalanceSortBy'] != 'none':
             if self.request.GET['BalanceSortBy'] == "ASC":
@@ -645,6 +647,10 @@ class filters(generics.ListAPIView):
                 queryset = queryset.filter(special=False)
             elif self.request.GET['special'] =='true':
                 queryset = queryset.filter(special=True)
+
+        #CSV
+        if self.request.GET['AddressValue'] != "":
+            queryset = queryset.filter(address=self.request.GET['AddressValue'])
 
         #NFT
         if self.request.GET['NFTCount'] != "":
