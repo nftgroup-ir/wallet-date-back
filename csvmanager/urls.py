@@ -14,7 +14,9 @@ urlpatterns = [
         path('csv/get_nfts/', views.nftDetails, name = 'nftDetails'),
         path('csv/get_balances/', views.balanceDetails, name='nftDetails'),
         path('csv/', views.filters.as_view() , name = 'filters'),
-        path('csv/data_getter/', views.getWalletDate,name='dataGetter')
+        path('csv/data_getter/', views.getWalletDate,name='dataGetter'),
+        path('csv/data_getter_by_token/', views.getWalletDataByToken,name='dataGetterbyToken')
+
         #path('csv/get_balance/', views.balanceDetails, name = 'nftDetails'),
 ]
 

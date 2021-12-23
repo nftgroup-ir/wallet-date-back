@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
+django = "~=3.2.10"
 djangorestframework = "*"
 django-cors-headers = "*"
 djangorestframework-bulk = "*"
@@ -15,6 +15,7 @@ selenium = "*"
 requests = "*"
 urllib3 = "*"
 django-filter = "*"
+web3 = "*"
 
 [dev-packages]
 

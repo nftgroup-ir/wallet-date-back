@@ -12,6 +12,12 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from django.db import OperationalError
 from django.http import JsonResponse
+from web3 import Web3
+
+import json 
+
+
+infura = 'https://mainnet.infura.io/v3/5e5b7b87ad6a4a899bd80becd958b765'
 
 def TxCovaltGetter(walletAddress,walletID):
     i = CSV.objects.filter(id=walletID)[0]
@@ -113,6 +119,18 @@ def NftMoralisGetter(walletAddress,walletID):
     except OperationalError:
         return False
 
+def tokenBalanceWeb3Getter(walletAddress,tokenContractAddress):
+    ABI = json.loads('[{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]')
+    w3 = Web3(Web3.HTTPProvider(infura))
+    wallet_address = Web3.toChecksumAddress(walletAddress)
+    token_contract_address = Web3.toChecksumAddress(tokenContractAddress)
+    # define contract
+    contract = w3.eth.contract(token_contract_address, abi=ABI)
+
+    # call contract and get data from balanceOf for argument wallet_address
+    raw_balance = contract.functions.balanceOf(wallet_address).call()
+
+    return raw_balance
 
 
 def getWalletDate(request):
@@ -160,7 +178,15 @@ def getWalletDate(request):
     return JsonResponse(responseData)
 
         
-
+def getWalletDataByToken(request):
+    address = request.GET['address']
+    tokenAddress = request.GET['token']
+    print(address,tokenAddress)
+    balance = tokenBalanceWeb3Getter(address,tokenAddress)
+    responseData = {
+        'result': address+ ' balance for '+tokenAddress+' coin : ' +str(balance),
+    } 
+    return JsonResponse(responseData)
 
 
 class listCreate(generics.ListCreateAPIView):
@@ -649,7 +675,7 @@ class filters(generics.ListAPIView):
                 queryset = queryset.filter(special=True)
 
         #CSV
-        if 'AddressValue' in request.GET:
+        if 'AddressValue' in self.request.GET:
             if self.request.GET['AddressValue'] != "":
                 queryset = queryset.filter(address=self.request.GET['AddressValue'])
 
