@@ -675,9 +675,9 @@ class filters(generics.ListAPIView):
                 queryset = queryset.filter(special=True)
 
         #CSV
-        if 'AddressValue' in self.request.GET:
-            if self.request.GET['AddressValue'] != "":
-                queryset = queryset.filter(address=self.request.GET['AddressValue'])
+        if 'AddressInput' in self.request.GET:
+            if self.request.GET['AddressInput'] != "":
+                queryset = queryset.filter(address=self.request.GET['AddressInput'])
 
         #NFT
         if self.request.GET['NFTCount'] != "":
