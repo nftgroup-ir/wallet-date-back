@@ -15,6 +15,8 @@ from django.http import JsonResponse
 from web3 import Web3
 import sys
 import json 
+import threading
+
 
 
 infura = 'https://mainnet.infura.io/v3/5e5b7b87ad6a4a899bd80becd958b765'
@@ -143,16 +145,19 @@ def tokenBalanceWeb3Getter(walletAddress,tokenContractAddress):
 
     return raw_balance
 
+def startTxCovaltGetter(walletAddress,walletID):
+    t = threading.Thread(target=TxCovaltGetter,args=[walletAddress,walletID])
+    t.setDaemon(True)
+    t.start()
 
 def getWalletDate(request):
     walletID = CSV.objects.filter(address=request.GET['wallet'])[0].id
     walletAddress = request.GET['wallet']
 
-
     if not 'Tx' in request.GET:
-        txResult= TxCovaltGetter(walletAddress,walletID)
+        txResult= startTxCovaltGetter(walletAddress,walletID)
     elif  request.GET['Tx'] != 'false' :
-        txResult= TxCovaltGetter(walletAddress,walletID)
+        txResult= startTxCovaltGetter(walletAddress,walletID)
     else: txResult ="canceled"
 
     if not 'balance' in request.GET:
@@ -638,7 +643,7 @@ def scrape(request):
 def transactiondetails(request):
     csv = CSV.objects.all()
     for i in csv:
-        TxCovaltGetter(i.address,i.id)
+        startTxCovaltGetter(i.address,i.id)
     responseData = {
         'result': 'Transactions Updated',
     } 
