@@ -13,34 +13,39 @@ from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from django.db import OperationalError
 from django.http import JsonResponse
 from web3 import Web3
-
+import sys
 import json 
 
 
 infura = 'https://mainnet.infura.io/v3/5e5b7b87ad6a4a899bd80becd958b765'
 
 def TxCovaltGetter(walletAddress,walletID):
-    i = CSV.objects.filter(id=walletID)[0]
-    response = requests.get(f"https://api.covalenthq.com/v1/1/address/{walletAddress}/transactions_v2/?key=ckey_12d0a9ab40ec40778e2f5f7965c")
-    if response.status_code != 400:
-        data = response.json()
-        for k in data['data']['items']:
-            obj , created = Transaction.objects.update_or_create(
-            hash = k['tx_hash'],
-            defaults = {
-                'from_address' : k['from_address'],
-                    'to_address' : k['to_address'],
-                    'value' : k['value'],
-                    'parent_id' : walletID,
-                    'gas_price' : k['gas_price'],
-                    'receipt_gas_used' : k['gas_spent'],
+    try:
+        i = CSV.objects.filter(id=walletID)[0]
+        response = requests.get(f"https://api.covalenthq.com/v1/1/address/{walletAddress}/transactions_v2/?key=ckey_12d0a9ab40ec40778e2f5f7965c")
+        if response.status_code == 200:
+            data = response.json()
+            for k in data['data']['items']:
+                obj , created = Transaction.objects.update_or_create(
+                hash = k['tx_hash'],
+                defaults = {
+                    'from_address' : k['from_address'],
+                        'to_address' : k['to_address'],
+                        'value' : k['value'],
+                        'parent_id' : walletID,
+                        'gas_price' : k['gas_price'],
+                        'receipt_gas_used' : k['gas_spent'],
 
-                    }
-                )
-        print(len(data['data']['items']),' TXs udated or created for ',walletAddress,)
-        i.total_Txs = len(data['data']['items'])
-        i.save()
-    else: print('transactions error for ',walletAddress , 'error code: ',response.status_code)
+                        }
+                    )
+            print(len(data['data']['items']),' TXs udated or created for ',walletAddress,)
+            i.total_Txs = len(data['data']['items'])
+            i.save()
+        else: 
+            print('transactions error for ',walletAddress , 'error code: ',response.status_code)
+    except:
+        print("Unexpected error:", sys.exc_info()[0])
+        return False
 
 
 def balanceCovaltGetter(walletAddress,walletID):
@@ -75,48 +80,54 @@ def balanceCovaltGetter(walletAddress,walletID):
             return False
 
 
-    except OperationalError:
+    except :
+        print("Unexpected error:", sys.exc_info()[0])
         return False
 
 def NftMoralisGetter(walletAddress,walletID):
     try:
         response = requests.get(f"https://deep-index.moralis.io/api/v2/{walletAddress}/nft?chain=eth&format=decimal", headers = {"accept":"application/json", "X-API-Key":"Xv6WsHrCbYI3ebzEuHlaBWXZbdRo0tvpDaI9zH8CbffKzClvWp5nX2BkWuRGUbp2"})
-        data = response.json()
-        i = CSV.objects.filter(id=walletID)[0]
-        if data['total']:
-            i.total_nfts = data['total']
-            totalNFT =data['total']
-        else:
-            i.total_nfts = 0
-            totalNFT=0
-        i.save()
-        if data['result']:
-            for k in data['result']:
-                token_address = k['token_address']
-                token_id = k['token_id']
-                field_unique_process = ""
-                field_unique_process = token_address + token_id
-                new_nft , created = NFT.objects.update_or_create(field_unique = field_unique_process,
-                defaults = { "parent_id" : walletID , "token_address" : k['token_address'] ,
-                                "token_id" : k['token_id'] ,
-                                "block_number_minted" : k['block_number_minted'] ,
-                                "owner_of" : k['owner_of'],
-                                "block_number" : k['block_number'],
-                                "amount" : k['amount'],
-                                "contract_type" :  k['contract_type'],
-                                "name" : k['name'],
-                                "symbol" : k['symbol'],
-                                "token_uri" : k['token_uri'],
-                                "metadata" : k['metadata'],
-                                "synced_at" : k['synced_at'],
-                                "is_valid" : k['is_valid'],
-                                "syncing" : k['syncing'],
-                                "frozen" :  k['frozen'],
-                                "field_unique" : field_unique_process })
-        print(totalNFT,' NFTs udated or created for ',walletAddress,)
-        return True
+        if response.status_code == 200:  
+            data = response.json()
+            i = CSV.objects.filter(id=walletID)[0]
+            if data['total']:
+                i.total_nfts = data['total']
+                totalNFT =data['total']
+            else:
+                i.total_nfts = 0
+                totalNFT=0
+            i.save()
+            if data['result']:
+                for k in data['result']:
+                    token_address = k['token_address']
+                    token_id = k['token_id']
+                    field_unique_process = ""
+                    field_unique_process = token_address + token_id
+                    new_nft , created = NFT.objects.update_or_create(field_unique = field_unique_process,
+                    defaults = { "parent_id" : walletID , "token_address" : k['token_address'] ,
+                                    "token_id" : k['token_id'] ,
+                                    "block_number_minted" : k['block_number_minted'] ,
+                                    "owner_of" : k['owner_of'],
+                                    "block_number" : k['block_number'],
+                                    "amount" : k['amount'],
+                                    "contract_type" :  k['contract_type'],
+                                    "name" : k['name'],
+                                    "symbol" : k['symbol'],
+                                    "token_uri" : k['token_uri'],
+                                    "metadata" : k['metadata'],
+                                    "synced_at" : k['synced_at'],
+                                    "is_valid" : k['is_valid'],
+                                    "syncing" : k['syncing'],
+                                    "frozen" :  k['frozen'],
+                                    "field_unique" : field_unique_process })
+            print(totalNFT,' NFTs udated or created for ',walletAddress,)
+            return True
+        else: 
+            print('balances error for ',walletAddress , 'error code: ',response.status_code)
+            return False
 
-    except OperationalError:
+    except :
+        print("Unexpected error:", sys.exc_info()[0])
         return False
 
 def tokenBalanceWeb3Getter(walletAddress,tokenContractAddress):
