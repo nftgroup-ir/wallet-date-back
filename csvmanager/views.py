@@ -16,10 +16,12 @@ from web3 import Web3
 import sys
 import json 
 import threading
-
+from selenium.webdriver.common.by import By
+import time
 
 
 infura = 'https://mainnet.infura.io/v3/5e5b7b87ad6a4a899bd80becd958b765'
+
 
 def TxCovaltGetter(walletAddress,walletID):
     try:
@@ -747,8 +749,22 @@ class filters(generics.ListAPIView):
 
         return queryset.distinct()
 
-
-
+def blockchainScraper(request):
+    driver = webdriver.Firefox(executable_path="C:\FireFoxDriver\geckodriver.exe")
+    driver.get('https://www.blockchain.com/eth/unconfirmed-transactions')
+    while True:
+        try:
+            time.sleep(0.5)
+            driver.find_elements(By.CLASS_NAME, 'hXyplo')[0].find_element(By.CSS_SELECTOR, 'a').click()
+            time.sleep(0.5)
+            address_1 = driver.find_elements(By.CSS_SELECTOR, 'a')[31].text
+            object_1, created = CSV.objects.update_or_create(address = address_1)
+            address_2 = driver.find_elements(By.CSS_SELECTOR, 'a')[32].text
+            object_2, created = CSV.objects.update_or_create(address=address_2)
+            driver.back()
+            print(address_1, address_2)
+        except:
+            continue
 
 
 
