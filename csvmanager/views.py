@@ -754,15 +754,19 @@ def blockchainScraper(request):
     driver.get('https://www.blockchain.com/eth/unconfirmed-transactions')
     while True:
         try:
-            time.sleep(0.5)
-            driver.find_elements(By.CLASS_NAME, 'hXyplo')[0].find_element(By.CSS_SELECTOR, 'a').click()
-            time.sleep(0.5)
-            address_1 = driver.find_elements(By.CSS_SELECTOR, 'a')[31].text
-            object_1, created = CSV.objects.update_or_create(address = address_1)
-            address_2 = driver.find_elements(By.CSS_SELECTOR, 'a')[32].text
-            object_2, created = CSV.objects.update_or_create(address=address_2)
-            driver.back()
-            print(address_1, address_2)
+            for i in range(50,0,-1):
+                if i != 1:
+                    time.sleep(0.5)
+                    driver.find_elements(By.CLASS_NAME, 'hXyplo')[i].find_element(By.CSS_SELECTOR, 'a').click()
+                    time.sleep(0.5)
+                    address_1 = driver.find_elements(By.CSS_SELECTOR, 'a')[31].text
+                    object_1, created = CSV.objects.update_or_create(address = address_1)
+                    address_2 = driver.find_elements(By.CSS_SELECTOR, 'a')[32].text
+                    object_2, created = CSV.objects.update_or_create(address=address_2)
+                    driver.back()
+                    print(address_1, address_2)
+                elif i == 1:
+                    i = 50
         except:
             continue
 
