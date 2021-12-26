@@ -616,9 +616,9 @@ def scrape(request):
     options = Options()
     options.add_argument("--no-sandbox")
     options.add_argument("--headless")
-    # firefox_binary = FirefoxBinary('/usr/bin/firefox')
-    # driver = webdriver.Firefox(options=options, firefox_binary=firefox_binary)
-    driver = webdriver.Firefox(executable_path="C:\FireFoxDriver\geckodriver.exe")
+    firefox_binary = FirefoxBinary('/usr/bin/firefox')
+    driver = webdriver.Firefox(options=options, firefox_binary=firefox_binary)
+    # driver = webdriver.Firefox(executable_path="C:\FireFoxDriver\geckodriver.exe")
     driver.get('https://etherscan.io/accounts/')
     all_addresses = driver.find_elements_by_tag_name('tr')
     while True:
@@ -750,11 +750,15 @@ class filters(generics.ListAPIView):
         return queryset.distinct()
 
 def blockchainScraper(request):
-    driver = webdriver.Firefox(executable_path="C:\FireFoxDriver\geckodriver.exe")
+    options = Options()
+    options.add_argument("--no-sandbox")
+    options.add_argument("--headless")
+    firefox_binary = FirefoxBinary('/usr/bin/firefox')
+    driver = webdriver.Firefox(options=options, firefox_binary=firefox_binary)
     driver.get('https://www.blockchain.com/eth/unconfirmed-transactions')
     while True:
         try:
-            for i in range(50,0,-1):
+            for i in range(10,0,-1):
                 if i != 1:
                     time.sleep(0.5)
                     driver.find_elements(By.CLASS_NAME, 'hXyplo')[i].find_element(By.CSS_SELECTOR, 'a').click()
