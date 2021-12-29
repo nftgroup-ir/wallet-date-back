@@ -80,3 +80,21 @@ class Lottery(models.Model):
     email = models.CharField(max_length=120, unique=True)
     walletaddress = models.CharField(max_length=120, unique=True)
 
+
+class CompanyFeature(models.Model):
+    name = models.CharField(max_length=120)
+
+    def __str__(self):
+        return self.name
+
+
+class NftCompany(models.Model):
+    name = models.CharField(max_length=120)
+    site_url = models.URLField(max_length=120)
+    company_features = models.ManyToManyField(CompanyFeature)
+
+    def __str__(self):
+        return self.name
+
+
+
