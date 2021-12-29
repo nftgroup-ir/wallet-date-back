@@ -39,24 +39,32 @@ def TxCovaltGetter(walletAddress,walletID):
             for k in data['data']['items']:
                 obj , created = Transaction.objects.update_or_create(
                 hash = k['tx_hash'],
-                defaults = {
-                    'from_address' : k['from_address'],
-                        'to_address' : k['to_address'],
-                        'value' : k['value'],
-                        'parent_id' : walletID,
-                        'gas_price' : k['gas_price'],
-                        'receipt_gas_used' : k['gas_spent'],
-
-                        }
-                    )
+                        defaults = {
+                            'from_address' : k['from_address'],
+                                'to_address' : k['to_address'],
+                                'value' : k['value'],
+                                'parent_id' : walletID,
+                                'gas_price' : k['gas_price'],
+                                'receipt_gas_used' : k['gas_spent'],
+        
+                                }
+                            )
             print(len(data['data']['items']),' TXs udated or created for ',walletAddress,)
             i.total_Txs = len(data['data']['items'])
             i.save()
+            
+        elif response.status_code == 504 or response.status_code ==524 or response.status_code == 503:
+            time.sleep(10)
+
+        elif response.status_code == 429:
+            time.sleep(5)
+
         else: 
             print('transactions error for ',walletAddress , 'error code: ',response.status_code)
     except:
         print("Unexpected error:", sys.exc_info()[0])
         return False
+    
 
 
 def balanceCovaltGetter(walletAddress,walletID):
@@ -99,23 +107,48 @@ def balanceCovaltGetter(walletAddress,walletID):
                                                     "int_balance":balance,
                                                     "max_balance": isMAx,
                                                 })
+
             print(len(data['data']['items']),' Balances udated or created for ',walletAddress,)
             return True
+        
+        elif response.status_code == 504 or response.status_code ==524 or response.status_code == 503:
+            time.sleep(10)
 
-        else: 
+        elif response.status_code == 429:
+            time.sleep(5)
+
+        
+
+        else:
             print('balances error for ',walletAddress , 'error code: ',response.status_code)
             return False
-
-
     except :
         print("Unexpected error:", sys.exc_info()[0])
         return False
 
-def NftMoralisGetter(walletAddress,walletID):
+def startbalanceCovaltGetter(walletAddress,walletID):
+    t = threading.Thread(target=balanceCovaltGetter,args=[walletAddress,walletID])
+    t.setDaemon(True)
+    t.start()
+
+
+
+def balanceDetails(request):
+    csv = CSV.objects.all()
+    for index,i in enumerate(csv):
+        if index % 15 == 0:
+            time.sleep(1.25)
+        startbalanceCovaltGetter(i.address,i.id)
+    responseData = {
+        'result': 'balances Updated',
+    }
+    return JsonResponse(responseData)
+    
+def NftMoralisGetter(walletAddress,walletID,index):
     try:
         response = requests.get(f"https://deep-index.moralis.io/api/v2/{walletAddress}/nft?chain=eth&format=decimal", headers = {"accept":"application/json", "X-API-Key":"Xv6WsHrCbYI3ebzEuHlaBWXZbdRo0tvpDaI9zH8CbffKzClvWp5nX2BkWuRGUbp2"})
-        print(response.status_code)
-        if response.status_code == 200:  
+
+        if response.status_code == 200:
             data = response.json()
             i = CSV.objects.filter(id=walletID)[0]
             if data['total']:
@@ -151,14 +184,31 @@ def NftMoralisGetter(walletAddress,walletID):
                                     "field_unique" : field_unique_process })
             print(totalNFT,' NFTs udated or created for ',walletAddress,)
             return True
-        else: 
-            print('balances error for ',walletAddress , 'error code: ',response.status_code)
+        
+        elif response.status_code == 504 or response.status_code ==524 or response.status_code == 503:
+            time.sleep(10)
+
+        elif response.status_code == 429:
+            time.sleep(5)
+            
+        else:
+            print('nft error for ',walletAddress , 'error code: ',response.status_code)
             return False
 
     except :
         print("Unexpected error:", sys.exc_info()[0])
         return False
 
+    
+        
+
+
+
+def startNftMoralisGetter(walletAddress,walletID,index):
+    t = threading.Thread(target=NftMoralisGetter,args=[walletAddress,walletID,index])
+    t.setDaemon(True)
+    t.start()
+    
 def tokenBalanceWeb3Getter(walletAddress,tokenContractAddress):
     ABI = json.loads('[{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]')
     w3 = Web3(Web3.HTTPProvider(infura))
@@ -669,7 +719,9 @@ def scrape(request):
 
 def transactiondetails(request):
     csv = CSV.objects.all()
-    for i in csv:
+    for index,i in enumerate(csv):
+        if index % 10 == 0:
+            time.sleep(2)
         startTxCovaltGetter(i.address,i.id)
     responseData = {
         'result': 'Transactions Updated',
@@ -677,23 +729,16 @@ def transactiondetails(request):
     return JsonResponse(responseData)
 
 
-def balanceDetails(request):
-    csv = CSV.objects.all()
-    for i in csv:
-        balanceCovaltGetter(i.address,i.id)
-    responseData = {
-        'result': 'balances Updated',
-    } 
-    return JsonResponse(responseData)
+
 
         
 
-                
-
 def  nftDetails(request):
     csv = CSV.objects.all()
-    for i in csv:
-        NftMoralisGetter(i.address,i.id)
+    for index,i in enumerate(csv):
+        if index % 5 == 0:
+            time.sleep(1.5)
+        startNftMoralisGetter(i.address,i.id,index)
     responseData = {
         'result': 'NFTs Updated',
     } 
