@@ -1,3 +1,5 @@
+from typing import Counter
+from django.db.models.fields import DecimalField
 from django.shortcuts import render
 from rest_framework import generics 
 from .models import *
@@ -18,11 +20,16 @@ import json
 import threading
 from selenium.webdriver.common.by import By
 import time
-
+import math
+from decimal import *
 
 infura = 'https://mainnet.infura.io/v3/5e5b7b87ad6a4a899bd80becd958b765'
 
-
+def removeUnicodeCharacters(data):
+    if data != None:
+        data = data.encode('ascii', 'ignore').decode("utf-8")
+    else: data = ""
+    return 
 def TxCovaltGetter(walletAddress,walletID):
     try:
         i = CSV.objects.filter(id=walletID)[0]
@@ -56,26 +63,42 @@ def balanceCovaltGetter(walletAddress,walletID):
     try:
         response = requests.get(
         f"https://api.covalenthq.com/v1/1/address/{walletAddress}/balances_v2/?key=ckey_12d0a9ab40ec40778e2f5f7965c")
+        Counter=0
         if response.status_code == 200:
             data = response.json()
+            isMAx=False
             for k in data['data']['items']:
+                print(Counter)
+                Counter+=1
+                print(k['contract_decimals'],'==============')
+                if k['contract_decimals'] !=0:
+                    balance= Decimal(int(k['balance'])/(10**int(k['contract_decimals']))) 
+                    if math.trunc(balance)>10**47:
+                        isMAx=True
+                        balance = 9999999999999999999999999999999999999999999999
+                else: 
+                    balance = k['balance']
+                
+                print(walletAddress,k['balance'],balance) 
                 new_balance, created = BalanceData.objects.update_or_create(contract_address=k["contract_address"],
                                         defaults={
-                                                  "parent_id": walletID,
-                                                  "contract_decimals": k['contract_decimals'],
-                                                  "contract_name": k['contract_name'],
-                                                  "contract_ticker_symbol": k['contract_ticker_symbol'],
-                                                  "contract_address": k['contract_address'],
-                                                  "logo_url": k['logo_url'],
-                                                  "last_transferred_at": k['last_transferred_at'],
-                                                  "type": k['type'],
-                                                  "balance": k['balance'],
-                                                  "balance_24h": k['balance_24h'],
-                                                  "quote_rate": k['quote_rate'],
-                                                  "quote_rate_24h": k['quote_rate_24h'],
-                                                  "quote": k['quote'],
-                                                  "quote_24h": k['quote_24h'],
-                                              })
+                                                    "parent_id": walletID,
+                                                    "contract_decimals": k['contract_decimals'],
+                                                    "contract_name":removeUnicodeCharacters(k['contract_name']),
+                                                    "contract_ticker_symbol": removeUnicodeCharacters(k['contract_ticker_symbol']),
+                                                    "contract_address": k['contract_address'],
+                                                    "logo_url": k['logo_url'],
+                                                    "last_transferred_at": k['last_transferred_at'],
+                                                    "type": k['type'],
+                                                    "balance": k['balance'],
+                                                    "balance_24h": k['balance_24h'],
+                                                    "quote_rate": k['quote_rate'],
+                                                    "quote_rate_24h": k['quote_rate_24h'],
+                                                    "quote": k['quote'],
+                                                    "quote_24h": k['quote_24h'],
+                                                    "int_balance":balance,
+                                                    "max_balance": isMAx,
+                                                })
             print(len(data['data']['items']),' Balances udated or created for ',walletAddress,)
             return True
 
@@ -91,6 +114,7 @@ def balanceCovaltGetter(walletAddress,walletID):
 def NftMoralisGetter(walletAddress,walletID):
     try:
         response = requests.get(f"https://deep-index.moralis.io/api/v2/{walletAddress}/nft?chain=eth&format=decimal", headers = {"accept":"application/json", "X-API-Key":"Xv6WsHrCbYI3ebzEuHlaBWXZbdRo0tvpDaI9zH8CbffKzClvWp5nX2BkWuRGUbp2"})
+        print(response.status_code)
         if response.status_code == 200:  
             data = response.json()
             i = CSV.objects.filter(id=walletID)[0]
@@ -108,7 +132,8 @@ def NftMoralisGetter(walletAddress,walletID):
                     field_unique_process = ""
                     field_unique_process = token_address + token_id
                     new_nft , created = NFT.objects.update_or_create(field_unique = field_unique_process,
-                    defaults = { "parent_id" : walletID , "token_address" : k['token_address'] ,
+                    defaults = { "parent_id" : walletID ,
+                                    "token_address" : k['token_address'] ,
                                     "token_id" : k['token_id'] ,
                                     "block_number_minted" : k['block_number_minted'] ,
                                     "owner_of" : k['owner_of'],
@@ -514,9 +539,9 @@ class BalanceDataListCreate(generics.ListCreateAPIView):
 
         if self.request.GET['BalanceSortBy'] != 'none':
             if self.request.GET['BalanceSortBy'] == "ASC":
-                queryset = queryset.order_by('balance')
+                queryset = queryset.order_by('int_balance')
             elif self.request.GET['BalanceSortBy'] == "DESC":
-                queryset = queryset.order_by('-balance')
+                queryset = queryset.order_by('-int_balance')
 
         if self.request.GET['Balance24hSortBy'] != 'none':
             if self.request.GET['Balance24hSortBy'] == "ASC":
@@ -551,11 +576,11 @@ class BalanceDataListCreate(generics.ListCreateAPIView):
         # Operators
         if self.request.GET['BalanceOperator'] != "":
             if self.request.GET['BalanceOperator'] == 'gt':
-                queryset = queryset.filter(balance__gt=self.request.GET['BalanceValue'])
+                queryset = queryset.filter(int_balance__gt=self.request.GET['BalanceValue'])
             elif self.request.GET['BalanceOperator'] == 'lt':
-                queryset = queryset.filter(balance__lt=self.request.GET['BalanceValue'])
+                queryset = queryset.filter(int_balance__lt=self.request.GET['BalanceValue'])
             elif self.request.GET['BalanceOperator'] == 'eq':
-                queryset = queryset.filter(balance=self.request.GET['BalanceValue'])
+                queryset = queryset.filter(int_balance=self.request.GET['BalanceValue'])
 
         if self.request.GET['Balance24hOperator'] != "":
             if self.request.GET['Balance24hOperator'] == 'gt':
