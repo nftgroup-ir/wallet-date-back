@@ -29,7 +29,7 @@ def removeUnicodeCharacters(data):
     if data != None:
         data = data.encode('ascii', 'ignore').decode("utf-8")
     else: data = ""
-    return 
+    return data
 def TxCovaltGetter(walletAddress,walletID):
     try:
         i = CSV.objects.filter(id=walletID)[0]
