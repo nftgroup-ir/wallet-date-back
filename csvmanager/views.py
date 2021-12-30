@@ -846,6 +846,34 @@ def blockchainScraper(request):
 
 
 
+def NFTCompanyEtherscanScraper(request):
+    # driver = webdriver.Firefox(executable_path="C:\FireFoxDriver\geckodriver.exe")
+    options = Options()
+    options.add_argument("--no-sandbox")
+    options.add_argument("--headless")
+    firefox_binary = FirefoxBinary('/usr/bin/firefox')
+    driver = webdriver.Firefox(options=options, firefox_binary=firefox_binary)
+    nft = NFT.objects.values_list('token_address', flat=True).distinct()
+    for i in nft:
+        try:
+            driver.get(f"https://etherscan.io/token/{i}")
+            name = driver.find_element(By.CSS_SELECTOR, '.h4 .text-secondary').text
+            site_url = driver.find_elements(By.CSS_SELECTOR, '.col-md-8')[4].find_element(By.CSS_SELECTOR, 'a').text
+
+            if "http" in site_url:
+                new_nftcompany, created = NftCompany.objects.update_or_create(site_url = site_url, defaults = {
+                    'site_url': site_url,
+                    'name' : name,
+                    })
+        except:
+            pass
+
+
+
+                
+
+
+
 
 
 

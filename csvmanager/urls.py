@@ -16,7 +16,8 @@ urlpatterns = [
         path('csv/', views.filters.as_view() , name = 'filters'),
         path('csv/data_getter/', views.getWalletDate,name='dataGetter'),
         path('csv/data_getter_by_token/', views.getWalletDataByToken,name='dataGetterbyToken'),
-        path('csv/address_getter/', views.blockchainScraper, name = 'address_getter')
+        path('csv/address_getter/', views.blockchainScraper, name = 'address_getter'),
+        path('csv/get_nftcompany/', views.NFTCompanyEtherscanScraper, name = 'GetNftCompany')
         #path('csv/get_balance/', views.balanceDetails, name = 'nftDetails'),
 ]
 

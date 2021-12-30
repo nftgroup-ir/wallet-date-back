@@ -93,7 +93,7 @@ class CompanyFeature(models.Model):
 
 class NftCompany(models.Model):
     name = models.CharField(max_length=120)
-    site_url = models.URLField(max_length=120)
+    site_url = models.URLField(max_length=120, unique = True)
     company_features = models.ManyToManyField(CompanyFeature)
 
     def __str__(self):
