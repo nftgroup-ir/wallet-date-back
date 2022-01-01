@@ -16,6 +16,7 @@ requests = "*"
 urllib3 = "*"
 django-filter = "*"
 web3 = "*"
+django-environ = "*"
 
 [dev-packages]
 

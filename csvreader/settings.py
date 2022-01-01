@@ -10,8 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 from pathlib import Path
-
+import environ
 from django.conf import settings
+import os
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+env = environ.Env()
+
 
 settings.configure()
 
@@ -104,9 +109,9 @@ WSGI_APPLICATION = 'csvreader.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'wallet',
-        'USER': 'root',
-        'PASSWORD': '1234',
+        'NAME': env('DATABASE_NAME'),
+        'USER': env('DATABASE_USER'),
+        'PASSWORD': env('DATABASE_PASS'),
         'HOST': 'localhost',
         'PORT': '',
     }

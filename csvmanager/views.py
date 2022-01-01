@@ -22,6 +22,11 @@ from selenium.webdriver.common.by import By
 import time
 import math
 from decimal import *
+import environ
+import os
+BASE_DIR = os.path.dirname(os.path.dirname((os.path.abspath(__file__))))
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+env = environ.Env()
 
 infura = 'https://mainnet.infura.io/v3/5e5b7b87ad6a4a899bd80becd958b765'
 
@@ -692,8 +697,12 @@ def scrape(request):
     options.add_argument("--no-sandbox")
     options.add_argument("--headless")
     firefox_binary = FirefoxBinary('/usr/bin/firefox')
-    driver = webdriver.Firefox(options=options, firefox_binary=firefox_binary)
-    # driver = webdriver.Firefox(executable_path="C:\FireFoxDriver\geckodriver.exe")
+    if env('SERVER') == "1":
+        driver=webdriver.Firefox(options=options, firefox_binary=firefox_binary)
+    else:
+        driver = webdriver.Firefox(executable_path=env('DRIVER'))
+
+    
     driver.get('https://etherscan.io/accounts/')
     all_addresses = driver.find_elements_by_tag_name('tr')
     while True:
@@ -824,7 +833,10 @@ def blockchainScraper(request):
     options.add_argument("--no-sandbox")
     options.add_argument("--headless")
     firefox_binary = FirefoxBinary('/usr/bin/firefox')
-    driver = webdriver.Firefox(options=options, firefox_binary=firefox_binary)
+    if env('SERVER') == "1":
+        driver=webdriver.Firefox(options=options, firefox_binary=firefox_binary)
+    else:
+        driver = webdriver.Firefox(executable_path=env('DRIVER'))
     driver.get('https://www.blockchain.com/eth/unconfirmed-transactions')
     while True:
         try:
@@ -852,7 +864,10 @@ def NFTCompanyEtherscanScraper(request):
     options.add_argument("--no-sandbox")
     options.add_argument("--headless")
     firefox_binary = FirefoxBinary('/usr/bin/firefox')
-    driver = webdriver.Firefox(options=options, firefox_binary=firefox_binary)
+    if env('SERVER') == "1":
+        driver=webdriver.Firefox(options=options, firefox_binary=firefox_binary)
+    else:
+        driver = webdriver.Firefox(executable_path=env('DRIVER'))
     nft = NFT.objects.values_list('token_address', flat=True).distinct()
     for i in nft:
         try:
