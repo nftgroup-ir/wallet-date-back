@@ -688,12 +688,12 @@ class BalanceDataListCreate(generics.ListCreateAPIView):
     #
 
 def scrape(request):
-    options = Options()
-    options.add_argument("--no-sandbox")
-    options.add_argument("--headless")
-    firefox_binary = FirefoxBinary('/usr/bin/firefox')
-    driver = webdriver.Firefox(options=options, firefox_binary=firefox_binary)
-    # driver = webdriver.Firefox(executable_path="C:\FireFoxDriver\geckodriver.exe")
+    # options = Options()
+    # options.add_argument("--no-sandbox")
+    # options.add_argument("--headless")
+    # firefox_binary = FirefoxBinary('/usr/bin/firefox')
+    # driver = webdriver.Firefox(options=options, firefox_binary=firefox_binary)
+    driver = webdriver.Firefox(executable_path="C:\FireFoxDriver\geckodriver.exe")
     driver.get('https://etherscan.io/accounts/')
     all_addresses = driver.find_elements_by_tag_name('tr')
     while True:
@@ -847,12 +847,12 @@ def blockchainScraper(request):
 
 
 def NFTCompanyEtherscanScraper(request):
-    # driver = webdriver.Firefox(executable_path="C:\FireFoxDriver\geckodriver.exe")
-    options = Options()
-    options.add_argument("--no-sandbox")
-    options.add_argument("--headless")
-    firefox_binary = FirefoxBinary('/usr/bin/firefox')
-    driver = webdriver.Firefox(options=options, firefox_binary=firefox_binary)
+    driver = webdriver.Firefox(executable_path="C:\FireFoxDriver\geckodriver.exe")
+    # options = Options()
+    # options.add_argument("--no-sandbox")
+    # options.add_argument("--headless")
+    # firefox_binary = FirefoxBinary('/usr/bin/firefox')
+    # driver = webdriver.Firefox(options=options, firefox_binary=firefox_binary)
     nft = NFT.objects.values_list('token_address', flat=True).distinct()
     for i in nft:
         try:
@@ -870,11 +870,12 @@ def NFTCompanyEtherscanScraper(request):
 
 
 
-                
+class NftCompanyListCreate(generics.ListCreateAPIView):
+    queryset = NftCompany.objects.all()
+    serializer_class = NFTCompanySerializer
 
-
-
-
-
+    # def get_queryset(self, *args, **kwargs):
+    #     queryset = NftCompany.objects.all()
+    #     return queryset.distinct()
 
 

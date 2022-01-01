@@ -80,3 +80,29 @@ class filters(BulkSerializerMixin, ModelSerializer):
     class Meta(object):
         model = CSV
         fields = '__all__'
+
+class CompanyFeatureSerializer(ModelSerializer):
+    class Meta:
+        model = CompanyFeature
+        fields = '__all__'
+
+
+class NFTCompanySerializer(ModelSerializer):
+    features = serializers.SerializerMethodField()
+    class Meta:
+        model = NftCompany
+        fields = '__all__'
+
+    def get_features(self, id):
+        feature = CompanyFeature.objects.filter(nft_company=id).values("name")
+        print(feature)
+        if feature == None:
+            return ""
+        else:
+            return  feature
+        
+
+
+
+
+
