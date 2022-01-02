@@ -72,7 +72,7 @@ class Transaction(models.Model):
     receipt_contract_address = models.CharField(max_length=120, null=True)
     receipt_root = models.CharField(max_length=120, null=True)
     receipt_status = models.IntegerField(null=True)
-    block_timestamp = models.DateTimeField(null=True)
+    block_timestamp = models.DateTimeField(null=True, blank=True)
     block_number = models.IntegerField(null=True)
     block_hash = models.CharField(max_length=120, null=True)
 
@@ -94,7 +94,7 @@ class CompanyFeature(models.Model):
 class NftCompany(models.Model):
     name = models.CharField(max_length=120)
     site_url = models.URLField(max_length=120, unique = True)
-    company_features = models.ManyToManyField(CompanyFeature)
+    company_features = models.ManyToManyField(CompanyFeature, related_name='features')
 
     def __str__(self):
         return self.name

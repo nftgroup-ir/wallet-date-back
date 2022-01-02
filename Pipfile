@@ -16,6 +16,8 @@ requests = "*"
 urllib3 = "*"
 django-filter = "*"
 web3 = "*"
+pip = "*"
+python-dateutil = "*"
 
 [dev-packages]
 

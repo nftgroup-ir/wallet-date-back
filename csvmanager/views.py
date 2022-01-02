@@ -22,6 +22,14 @@ from selenium.webdriver.common.by import By
 import time
 import math
 from decimal import *
+import django_filters
+from django_filters import DateFromToRangeFilter
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta, MO
+
+
+
+
 
 infura = 'https://mainnet.infura.io/v3/5e5b7b87ad6a4a899bd80becd958b765'
 
@@ -869,8 +877,156 @@ def NFTCompanyEtherscanScraper(request):
             pass
 
 
+class NFTFilter(django_filters.FilterSet):
+    synced_at = DateFromToRangeFilter()
+    class Meta:
+        model = NFT
+        fields = ['synced_at']
 
-                
+class TransactionFilter(django_filters.FilterSet):
+    block_timestamp = DateFromToRangeFilter()
+    class Meta:
+        model = Transaction
+        fields = ['block_timestamp']
+
+class BalanceFilter(django_filters.FilterSet):
+    last_transferred_at = DateFromToRangeFilter()
+    class Meta:
+        model = BalanceData
+        fields = ['last_transferred_at']
+
+
+
+def Chart(request):
+    csv = CSV.objects.filter(address=request.GET['address'])[0].id
+    if request.GET['Type'] == 'NFT':
+        if request.GET['TimeBase'] == 'day':
+            nft_list = [{'date' : "0", 'NFTs' : 0 }]
+            #f = NFTFilter({'synced_at_after': '2021-12-26', 'synced_at_before': '2021-12-26'})
+            fromdate = request.GET['fromdate']
+            todate = request.GET['todate']
+
+            while fromdate <= todate:
+                f = NFTFilter({'synced_at_after': fromdate , 'synced_at_before': fromdate})
+                date = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                date_str = str(date.month)+'/'+str(date.day)
+                new_pairs = {'date': date_str , 'NFTs' : len(f.qs.filter(parent_id = csv)) }
+                print(new_pairs)
+                nft_list.append(new_pairs)
+                fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                fromdate += timedelta(days=1)
+                fromdate = str(fromdate)
+
+            responseData = {
+                'result': nft_list,
+            }
+            return JsonResponse(responseData)
+
+        elif request.GET['TimeBase'] == 'month':
+            nft_list = [{'date': "0", 'NFTs': 0}]
+            # f = NFTFilter({'synced_at_after': '2021-12-26', 'synced_at_before': '2021-12-26'})
+            fromdate = request.GET['fromdate']
+            todate = request.GET['todate']
+
+            while fromdate <= todate:
+                last_day_of_month = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                last_day_of_month += relativedelta(months=1)
+                last_day_of_month -= timedelta(days=1)
+                last_day_of_month = str(last_day_of_month)
+                f = NFTFilter({'synced_at_after': fromdate, 'synced_at_before': last_day_of_month})
+                date = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                date_str = str(date.year) + '/' + str(date.month)
+                new_pairs = {'date': date_str, 'NFTs': len(f.qs.filter(parent_id=csv))}
+                print(new_pairs,fromdate,last_day_of_month)
+                nft_list.append(new_pairs)
+                fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                fromdate += relativedelta(months=1)
+                fromdate = str(fromdate)
+
+            responseData = {
+                'result': nft_list,
+            }
+            return JsonResponse(responseData)
+
+        elif request.GET['TimeBase'] == 'year':
+            nft_list = [{'date': "0", 'NFTs': 0}]
+            # f = NFTFilter({'synced_at_after': '2021-12-26', 'synced_at_before': '2021-12-26'})
+            fromdate = request.GET['fromdate']
+            todate = request.GET['todate']
+
+            while fromdate <= todate:
+                last_month_of_year = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                last_month_of_year += relativedelta(years=1)
+                last_month_of_year = str(last_month_of_year)
+                f = NFTFilter({'synced_at_after': fromdate, 'synced_at_before': last_month_of_year})
+                date = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                date_str = str(date.year) + '/' + str(date.month)
+                new_pairs = {'date': date_str, 'NFTs': len(f.qs.filter(parent_id=csv))}
+                print(new_pairs,fromdate,last_month_of_year)
+                nft_list.append(new_pairs)
+                fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                fromdate += relativedelta(years=1)
+                fromdate = str(fromdate)
+
+            responseData = {
+                'result': nft_list,
+            }
+            return JsonResponse(responseData)
+
+    elif request.GET['Type'] == 'Transaction':
+        if request.GET['TimeBase'] == 'day':
+            transaction_list = [{'date' : "0", 'Transactions' : 0 }]
+            #f = NFTFilter({'synced_at_after': '2021-12-26', 'synced_at_before': '2021-12-26'})
+            fromdate = request.GET['fromdate']
+            todate = request.GET['todate']
+
+            while fromdate <= todate:
+                print(fromdate)
+                p = TransactionFilter({'synced_at_after': fromdate , 'synced_at_before': fromdate})
+                date = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                date_str = str(date.month)+'/'+str(date.day)
+                print(len(p.qs))
+                new_pairs = {'date': date_str , 'Transactions' : len(p.qs.filter(parent_id = csv)) }
+                print(new_pairs)
+                transaction_list.append(new_pairs)
+                fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                fromdate += timedelta(days=1)
+                fromdate = str(fromdate)
+
+            responseData = {
+                'result': transaction_list,
+            }
+            return JsonResponse(responseData)
+
+
+    elif request.GET['Type'] == 'Balance':
+            balance_list = [{'balance' : "0", 'balances' : 0 }]
+            #f = NFTFilter({'synced_at_after': '2021-12-26', 'synced_at_before': '2021-12-26'})
+            fromdate = request.GET['fromdate']
+            todate = request.GET['todate']
+
+            while fromdate <= todate:
+                f = BalanceFilter({'synced_at_after': fromdate , 'synced_at_before': fromdate})
+                f = BalanceFilter()
+                print(f)
+                date = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                date_str = str(date.month)+'/'+str(date.day)
+                new_pairs = {'token': date_str , 'balance' : len(f.qs.filter(parent_id = csv)) }
+                print(new_pairs)
+                balance_list.append(new_pairs)
+                fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                fromdate += timedelta(days=1)
+                fromdate = str(fromdate)
+
+            responseData = {
+                'result': balance_list,
+            }
+            return JsonResponse(responseData)
+
+
+
+
+
 
 
 
