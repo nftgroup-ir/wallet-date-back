@@ -10,6 +10,11 @@ w3 = Web3(Web3.HTTPProvider(infura))
 
 def removeHExBytes(string):
     return string.hex()
+def isExist(data):
+    if(data):
+        return data
+    else:
+         return " "
 
 def TxWeb3BalanceByBlock(walletAddress,startBlock,endBlock):
     print("Searching for transactions to/from account \"" , walletAddress + "\" within blocks "  , startBlock , " and " , endBlock)
@@ -27,25 +32,24 @@ def getBlocks(fromNumber,toNumber):
     for i in range(fromNumber,toNumber):
         block = w3.eth.getBlock(i,True)
         if block != None:
-            try:
                 Block.objects.update_or_create(number=block.number,defaults = {
-                                    'baseFeePerGas':  block.baseFeePerGas,
-                                    'difficulty': block.difficulty,
-                                    'extraData': block.extraData,
-                                    'gasLimit': block.gasLimit,
-                                    'gasUsed': block.gasUsed,
-                                    'hash':  block.hash,
-                                    'logsBloom': block.logsBloom,
-                                    'miner': block.miner,
-                                    'mixHash':  block.mixHash,
-                                    'nonce': block.nonce,
-                                    'parentHash':  block.parentHash,
-                                    'receiptsRoot': block.receiptsRoot,
-                                    'sha3Uncles': block.sha3Uncles,
-                                    'size': block.size,
-                                    'stateRoot':  block.stateRoot,
+                                    # 'baseFeePerGas':  isExist(block.baseFeePerGas),
+                                    'difficulty':  isExist(block.difficulty),
+                                    'extraData':  isExist(block.extraData),
+                                    'gasLimit':  isExist(block.gasLimit),
+                                    'gasUsed':  isExist(block.gasUsed),
+                                    'hash':   isExist(block.hash),
+                                    'logsBloom':  isExist(block.logsBloom),
+                                    'miner':  isExist(block.miner),
+                                    'mixHash':   isExist(block.mixHash),
+                                    'nonce':  isExist(block.nonce),
+                                    'parentHash':   isExist(block.parentHash),
+                                    'receiptsRoot':  isExist(block.receiptsRoot),
+                                    'sha3Uncles':  isExist(block.sha3Uncles),
+                                    'size':  isExist(block.size),
+                                    'stateRoot':   isExist(block.stateRoot),
                                     'timestamp':  datetime.fromtimestamp(block.timestamp),
-                                    'totalDifficulty': block.totalDifficulty,
+                                    'totalDifficulty':  isExist(block.totalDifficulty),
                                     'transactions': len(block.transactions)
                                 })
             
@@ -76,6 +80,5 @@ def getBlocks(fromNumber,toNumber):
                             address, adCreated = CSV.objects.get_or_create(address = i['to'])        
                         except:
                             print(" wallet error")
-            except:
-                print('block error')
+
     return "dare mishe"    
