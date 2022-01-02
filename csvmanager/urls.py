@@ -19,10 +19,8 @@ urlpatterns = [
         path('csv/address_getter/', views.blockchainScraper, name = 'address_getter'),
         path('csv/get_nftcompany/', views.NFTCompanyEtherscanScraper, name = 'GetNftCompany'),
         path('csv/get_txbyblock/', views.getTxByBlock, name = 'getTxByBlock'),
-        path('csv/get_block/', views.getBlocksURL, name = 'getBlocks')
-
-        
-
+        path('csv/get_block/', views.getBlocksURL, name = 'getBlocks'),
+        path('csv/nftcompany/', views.NftCompanyListCreate.as_view() , name='NFTCompanyListCreate'),
         #path('csv/get_balance/', views.balanceDetails, name = 'nftDetails'),
 ]
 

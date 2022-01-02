@@ -889,12 +889,27 @@ def NFTCompanyEtherscanScraper(request):
 
 
 
-                
+class NftCompanyListCreate(generics.ListCreateAPIView):
+    queryset = NftCompany.objects.all()
+    serializer_class = NFTCompanySerializer
 
+    def get_queryset(self, *args, **kwargs):
+        queryset = NftCompany.objects.all()
 
-
-
-
+        if self.request.GET['nameInput'] != "":
+            queryset = queryset.filter(name=self.request.GET['nameInput']).distinct()
+        
+        if self.request.GET['urlInput'] != "":
+            queryset = queryset.filter(site_url=self.request.GET['urlInput'])
+        
+        if self.request.GET['tagInput'] != "":
+            tags = self.request.GET.getlist('tagInput')
+            print(tags)
+            for tag in tags:
+                queryset = queryset.filter(Nft_Company_Features__name = tag)
+            
+        
+        return queryset.distinct()
 
 
 def getTxByBlock(request):
