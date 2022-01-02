@@ -27,7 +27,8 @@ def getBlocks(fromNumber,toNumber):
     for i in range(fromNumber,toNumber):
         block = w3.eth.getBlock(i,True)
         if block != None:
-            Block.objects.update_or_create(number=block.number,defaults = {
+            try:
+                Block.objects.update_or_create(number=block.number,defaults = {
                                     'baseFeePerGas':  block.baseFeePerGas,
                                     'difficulty': block.difficulty,
                                     'extraData': block.extraData,
@@ -47,10 +48,12 @@ def getBlocks(fromNumber,toNumber):
                                     'totalDifficulty': block.totalDifficulty,
                                     'transactions': len(block.transactions)
                                 })
-            if block.transactions != None:
-                for i in block.transactions:
-                    print('from: ',i['from'],' to: ',i['to'])
-                    obj , created = Transaction.objects.update_or_create(
+            
+                if block.transactions != None:
+                    for i in block.transactions:
+                        print('from: ',i['from'],' to: ',i['to'])
+                        try:
+                            obj , created = Transaction.objects.update_or_create(
                                                         hash = removeHExBytes(i.hash),
                                                         defaults = {
                                                                 'nonc': i.nonce,
@@ -66,8 +69,13 @@ def getBlocks(fromNumber,toNumber):
                                                                 'transaction_type': i.type
                                                         }
                             )
-
-                    address, adCreated = CSV.objects.get_or_create(address = i['from'])        
-                    address, adCreated = CSV.objects.get_or_create(address = i['to'])        
-
+                        except:
+                            print("tx error")
+                        try:
+                            address, adCreated = CSV.objects.get_or_create(address = i['from'])        
+                            address, adCreated = CSV.objects.get_or_create(address = i['to'])        
+                        except:
+                            print(" wallet error")
+            except:
+                print('block error')
     return "dare mishe"    
