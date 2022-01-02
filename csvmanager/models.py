@@ -57,8 +57,8 @@ class NFT(models.Model):
 
 
 class Transaction(models.Model):
-    parent = models.ForeignKey(CSV, on_delete=models.CASCADE)
-    hash = models.CharField(null=True,max_length=120, unique = True)
+    parent = models.ForeignKey(CSV, on_delete=models.CASCADE,null=True,blank=True)
+    hash = models.CharField(null=True,max_length=500, unique = True)
     nonc = models.IntegerField(null=True)
     transaction_index = models.IntegerField(null=True)
     from_address = models.CharField(max_length=120, null=True)
@@ -66,7 +66,7 @@ class Transaction(models.Model):
     value = models.CharField(null=True, max_length=120)
     gas = models.IntegerField(null=True)
     gas_price = models.BigIntegerField(null=True)
-    input = models.CharField(max_length=120, null=True)
+    input = models.TextField( null=True)
     receipt_cumulative_gas_used = models.IntegerField(null=True)
     receipt_gas_used = models.IntegerField(null=True)
     receipt_contract_address = models.CharField(max_length=120, null=True)
@@ -75,6 +75,7 @@ class Transaction(models.Model):
     block_timestamp = models.DateTimeField(null=True)
     block_number = models.IntegerField(null=True)
     block_hash = models.CharField(max_length=120, null=True)
+    transaction_type = models.CharField(max_length=120,null=True,blank=True)
 
 
 class Lottery(models.Model):
@@ -99,5 +100,26 @@ class NftCompany(models.Model):
     def __str__(self):
         return self.name
 
-
+class Block(models.Model):
+    baseFeePerGas= models.DecimalField(null=True,max_digits=65,decimal_places=19,blank=True)
+    difficulty= models.DecimalField(null=True,max_digits=65,decimal_places=19,blank=True)
+    extraData= models.TextField(null= True,blank=True)
+    gasLimit= models.DecimalField(null=True,max_digits=65,decimal_places=19,blank=True)
+    gasUsed= models.DecimalField(null=True,max_digits=65,decimal_places=19,blank=True)
+    hash= models.TextField(null= True,blank=True)
+    logsBloom= models.TextField(null= True,blank=True)
+    miner= models.TextField(null= True,blank=True)
+    mixHash= models.TextField(null= True,blank=True)
+    nonce= models.TextField(null= True,blank=True)
+    number= models.DecimalField(null=True,max_digits=65,decimal_places=19,blank=True,unique=True)
+    parentHash=  models.TextField(null= True,blank=True)
+    receiptsRoot=  models.TextField(null= True,blank=True)
+    sha3Uncles=  models.TextField(null= True,blank=True)
+    size= models.DecimalField(null=True,max_digits=65,decimal_places=19,blank=True)
+    stateRoot= models.TextField(null= True,blank=True)
+    timestamp= models.DateTimeField(null=True,blank=True)
+    totalDifficulty= models.DecimalField(null=True,max_digits=65,decimal_places=19,blank=True)
+    transactions=  models.IntegerField(null= True,blank=True)
+    def __str__(self):
+        return self.number
 

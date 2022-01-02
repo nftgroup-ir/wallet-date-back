@@ -1,7 +1,9 @@
 from typing import Counter
 from django.db.models.fields import DecimalField
 from django.shortcuts import render
-from rest_framework import generics 
+from rest_framework import generics
+
+from csvmanager.web3funcs import TxWeb3BalanceByBlock 
 from .models import *
 from .serializer import *
 from rest_framework_bulk import (ListBulkCreateUpdateDestroyAPIView,BulkUpdateModelMixin,ListBulkCreateUpdateAPIView)
@@ -24,6 +26,8 @@ import math
 from decimal import *
 import environ
 import os
+from .web3funcs import *
+
 BASE_DIR = os.path.dirname(os.path.dirname((os.path.abspath(__file__))))
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 env = environ.Env()
@@ -893,3 +897,16 @@ def NFTCompanyEtherscanScraper(request):
 
 
 
+def getTxByBlock(request):
+    result = TxWeb3BalanceByBlock('0x4fe2117d5390d752ddb8765a228e5641779e315b',13924830,13924831)
+    responseData = {
+        'result': result,
+    }
+    return JsonResponse(responseData)
+
+def getBlocksURL(request):
+    result = getBlocks(13924830,13924835)
+    responseData = {
+        'result': 'shod',
+    }
+    return JsonResponse(responseData)
