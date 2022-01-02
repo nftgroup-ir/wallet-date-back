@@ -14,7 +14,7 @@ def isExist(data):
     if(data):
         return data
     else:
-         return " "
+         return 0
 
 def TxWeb3BalanceByBlock(walletAddress,startBlock,endBlock):
     print("Searching for transactions to/from account \"" , walletAddress + "\" within blocks "  , startBlock , " and " , endBlock)
