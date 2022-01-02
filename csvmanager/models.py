@@ -29,9 +29,6 @@ class CompanyFeature(models.Model):
     def __str__(self):
         return self.name
 
-
-
-
 class BalanceData(models.Model):
     parent = models.ForeignKey(CSV, on_delete=models.CASCADE)
     contract_decimals = models.BigIntegerField(null=True,blank=True) 
@@ -104,20 +101,7 @@ class Lottery(models.Model):
     walletaddress = models.CharField(max_length=120, unique=True)
 
 
-class CompanyFeature(models.Model):
-    name = models.CharField(max_length=120)
 
-    def __str__(self):
-        return self.name
-
-
-class NftCompany(models.Model):
-    name = models.CharField(max_length=120)
-    site_url = models.URLField(max_length=120, unique = True)
-    company_features = models.ManyToManyField(CompanyFeature)
-
-    def __str__(self):
-        return self.name
 
 class Block(models.Model):
     baseFeePerGas= models.DecimalField(null=True,max_digits=65,decimal_places=19,blank=True)
