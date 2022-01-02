@@ -71,9 +71,21 @@ class LotterySerializer(ModelSerializer):
 
 
 class NFTSerializer(ModelSerializer):
+    nft_feature = serializers.SerializerMethodField()
+
     class Meta:
         model = NFT
         fields = '__all__'
+
+    def get_nft_feature(self, id):
+        try:
+            print(id.nft_company_id,'avvali')
+            x = NftCompany.objects.filter(id=id.nft_company_id).values_list()
+            print(x[0][0])
+            s = CompanyFeature.objects.filter(nft_company = x[0][0]).values("name")
+            return s
+        except:
+            print('nashod')
 
 
 class filters(BulkSerializerMixin, ModelSerializer):
@@ -95,7 +107,6 @@ class NFTCompanySerializer(ModelSerializer):
 
     def get_features(self, id):
         feature = CompanyFeature.objects.filter(nft_company=id).values("name")
-        print(feature)
         if feature == None:
             return ""
         else:

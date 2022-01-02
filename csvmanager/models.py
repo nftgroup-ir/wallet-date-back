@@ -16,6 +16,22 @@ class CSV(models.Model):
         return self.address
 
 
+class NftCompany(models.Model):
+    name = models.CharField(max_length=120)
+    site_url = models.URLField(max_length=120, unique = True)
+
+    def __str__(self):
+        return self.name
+
+class CompanyFeature(models.Model):
+    name = models.CharField(max_length=120)
+    nft_company = models.ManyToManyField(NftCompany , related_name = "Nft_Company_Features")
+    def __str__(self):
+        return self.name
+
+
+
+
 class BalanceData(models.Model):
     parent = models.ForeignKey(CSV, on_delete=models.CASCADE)
     contract_decimals = models.BigIntegerField(null=True,blank=True) 
@@ -54,6 +70,9 @@ class NFT(models.Model):
     syncing = models.TextField(null = True,blank=True)
     frozen = models.TextField(null = True,blank=True)
     field_unique = models.TextField(null = True,blank=True)
+    nft_company = models.ForeignKey(NftCompany , on_delete=models.CASCADE , null = True, default = None) 
+
+    
 
 
 class Transaction(models.Model):
@@ -82,19 +101,6 @@ class Lottery(models.Model):
     lastname = models.CharField(max_length=120)
     email = models.CharField(max_length=120, unique=True)
     walletaddress = models.CharField(max_length=120, unique=True)
-
-
-class NftCompany(models.Model):
-    name = models.CharField(max_length=120)
-    site_url = models.URLField(max_length=120, unique = True)
-    def __str__(self):
-        return self.name
-
-class CompanyFeature(models.Model):
-    name = models.CharField(max_length=120)
-    nft_company = models.ManyToManyField(NftCompany , related_name = "Nft_Company_Features")
-    def __str__(self):
-        return self.name
 
 
 
