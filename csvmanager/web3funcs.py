@@ -21,6 +21,8 @@ def TxWeb3BalanceByBlock(walletAddress,startBlock,endBlock):
     return "dare mishe"
 
 def getBlocks(fromNumber,toNumber):
+    fromNumber = int(fromNumber)
+    toNumber=int(toNumber)
     toNumber += 1
     for i in range(fromNumber,toNumber):
         block = w3.eth.getBlock(i,True)

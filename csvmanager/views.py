@@ -920,7 +920,7 @@ def getTxByBlock(request):
     return JsonResponse(responseData)
 
 def getBlocksURL(request):
-    result = getBlocks(13924830,13924835)
+    result = getBlocks(request.GET['from'],request.GET['to'])
     responseData = {
         'result': 'shod',
     }
