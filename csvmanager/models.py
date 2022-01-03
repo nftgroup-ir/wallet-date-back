@@ -88,7 +88,7 @@ class Transaction(models.Model):
     receipt_contract_address = models.CharField(max_length=120, null=True)
     receipt_root = models.CharField(max_length=120, null=True)
     receipt_status = models.IntegerField(null=True)
-    block_timestamp = models.DateTimeField(null=True)
+    block_timestamp = models.DateTimeField(null=True, blank=True)
     block_number = models.IntegerField(null=True)
     block_hash = models.CharField(max_length=120, null=True)
     transaction_type = models.CharField(max_length=120,null=True,blank=True)

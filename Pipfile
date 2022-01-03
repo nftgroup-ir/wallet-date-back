@@ -17,6 +17,8 @@ urllib3 = "*"
 django-filter = "*"
 web3 = "*"
 django-environ = "*"
+pip = "*"
+python-dateutil = "*"
 
 [dev-packages]
 
