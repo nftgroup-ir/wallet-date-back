@@ -1000,29 +1000,18 @@ def Chart(request):
 
 
     elif request.GET['Type'] == 'Balance':
-            balance_list = [{'balance' : "0", 'balances' : 0 }]
-            #f = NFTFilter({'synced_at_after': '2021-12-26', 'synced_at_before': '2021-12-26'})
-            fromdate = request.GET['fromdate']
-            todate = request.GET['todate']
-
-            while fromdate <= todate:
-                f = BalanceFilter({'synced_at_after': fromdate , 'synced_at_before': fromdate})
-                f = BalanceFilter()
-                print(f)
-                date = datetime.strptime(fromdate, '%Y-%m-%d').date()
-                date_str = str(date.month)+'/'+str(date.day)
-                new_pairs = {'token': date_str , 'balance' : len(f.qs.filter(parent_id = csv)) }
-                print(new_pairs)
-                balance_list.append(new_pairs)
-                fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
-                fromdate += timedelta(days=1)
-                fromdate = str(fromdate)
-
-            responseData = {
-                'result': balance_list,
-            }
-            return JsonResponse(responseData)
-
+        balance_list = [{'token' : "0", 'balance' : 0 }]
+        balances = BalanceData.objects.filter(parent_id = csv)
+        print(balances)
+        for i in balances:
+            new_pairs = {'token' : i.contract_ticker_symbol, 'balance' : i.balance }
+            balance_list.append(new_pairs)
+            
+        responseData = {
+            'result': balance_list,
+        }
+        return JsonResponse(responseData)
+            
 
 
 
