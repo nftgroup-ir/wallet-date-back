@@ -1023,7 +1023,7 @@ def Chart(request):
         balances = BalanceData.objects.filter(parent_id = csv)
         print(balances)
         for i in balances:
-            new_pairs = {'token' : i.contract_ticker_symbol, 'balance' : i.balance }
+            new_pairs = {'token' : i.contract_ticker_symbol, 'balance' : i.int_balance }
             balance_list.append(new_pairs)
             
         responseData = {
