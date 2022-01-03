@@ -902,7 +902,6 @@ def Chart(request):
     if request.GET['Type'] == 'NFT':
         if request.GET['TimeBase'] == 'day':
             nft_list = [{'date' : "0", 'NFTs' : 0 }]
-            #f = NFTFilter({'synced_at_after': '2021-12-26', 'synced_at_before': '2021-12-26'})
             fromdate = request.GET['fromdate']
             todate = request.GET['todate']
 
@@ -911,7 +910,6 @@ def Chart(request):
                 date = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 date_str = str(date.month)+'/'+str(date.day)
                 new_pairs = {'date': date_str , 'NFTs' : len(f.qs.filter(parent_id = csv)) }
-                print(new_pairs)
                 nft_list.append(new_pairs)
                 fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 fromdate += timedelta(days=1)
@@ -924,20 +922,17 @@ def Chart(request):
 
         elif request.GET['TimeBase'] == 'month':
             nft_list = [{'date': "0", 'NFTs': 0}]
-            # f = NFTFilter({'synced_at_after': '2021-12-26', 'synced_at_before': '2021-12-26'})
             fromdate = request.GET['fromdate']
             todate = request.GET['todate']
 
             while fromdate <= todate:
-                last_day_of_month = datetime.strptime(fromdate, '%Y-%m-%d').date()
-                last_day_of_month += relativedelta(months=1)
-                last_day_of_month -= timedelta(days=1)
-                last_day_of_month = str(last_day_of_month)
-                f = NFTFilter({'synced_at_after': fromdate, 'synced_at_before': last_day_of_month})
+                next_month = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                next_month += relativedelta(months=1)
+                next_month = str(next_month)
+                f = NFTFilter({'synced_at_after': fromdate, 'synced_at_before': next_month})
                 date = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 date_str = str(date.year) + '/' + str(date.month)
                 new_pairs = {'date': date_str, 'NFTs': len(f.qs.filter(parent_id=csv))}
-                print(new_pairs,fromdate,last_day_of_month)
                 nft_list.append(new_pairs)
                 fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 fromdate += relativedelta(months=1)
@@ -950,7 +945,6 @@ def Chart(request):
 
         elif request.GET['TimeBase'] == 'year':
             nft_list = [{'date': "0", 'NFTs': 0}]
-            # f = NFTFilter({'synced_at_after': '2021-12-26', 'synced_at_before': '2021-12-26'})
             fromdate = request.GET['fromdate']
             todate = request.GET['todate']
 
@@ -962,7 +956,6 @@ def Chart(request):
                 date = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 date_str = str(date.year) + '/' + str(date.month)
                 new_pairs = {'date': date_str, 'NFTs': len(f.qs.filter(parent_id=csv))}
-                print(new_pairs,fromdate,last_month_of_year)
                 nft_list.append(new_pairs)
                 fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 fromdate += relativedelta(years=1)
@@ -976,18 +969,14 @@ def Chart(request):
     elif request.GET['Type'] == 'Transaction':
         if request.GET['TimeBase'] == 'day':
             transaction_list = [{'date' : "0", 'Transactions' : 0 }]
-            #f = NFTFilter({'synced_at_after': '2021-12-26', 'synced_at_before': '2021-12-26'})
             fromdate = request.GET['fromdate']
             todate = request.GET['todate']
 
             while fromdate <= todate:
-                print(fromdate)
-                p = TransactionFilter({'synced_at_after': fromdate , 'synced_at_before': fromdate})
+                p = TransactionFilter({'block_timestamp_after': fromdate , 'block_timestamp_before': fromdate})
                 date = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 date_str = str(date.month)+'/'+str(date.day)
-                print(len(p.qs))
                 new_pairs = {'date': date_str , 'Transactions' : len(p.qs.filter(parent_id = csv)) }
-                print(new_pairs)
                 transaction_list.append(new_pairs)
                 fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 fromdate += timedelta(days=1)
@@ -998,11 +987,58 @@ def Chart(request):
             }
             return JsonResponse(responseData)
 
+        elif request.GET['TimeBase'] == 'month':
+            transaction_list = [{'date': "0", 'Transactions': 0}]
+            fromdate = request.GET['fromdate']
+            todate = request.GET['todate']
+
+            while fromdate <= todate:
+                next_month = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                next_month += relativedelta(months=1)
+                next_month = str(next_month)
+                f = TransactionFilter({'block_timestamp_after': fromdate, 'block_timestamp_before': next_month})
+                date = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                date_str = str(date.year) + '/' + str(date.month)
+                new_pairs = {'date': date_str, 'Transactions': len(f.qs.filter(parent_id=csv))}
+                transaction_list.append(new_pairs)
+                fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                fromdate += relativedelta(months=1)
+                fromdate = str(fromdate)
+
+            responseData = {
+                'result': transaction_list,
+            }
+            return JsonResponse(responseData)
+
+
+        elif request.GET['TimeBase'] == 'year':
+            transaction_list = [{'date': "0", 'Transactions': 0}]
+            fromdate = request.GET['fromdate']
+            todate = request.GET['todate']
+
+            while fromdate <= todate:
+                last_month_of_year = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                last_month_of_year += relativedelta(years=1)
+                last_month_of_year = str(last_month_of_year)
+                f = TransactionFilter({'block_timestamp_after': fromdate, 'block_timestamp_before': last_month_of_year})
+                date = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                date_str = str(date.year) + '/' + str(date.month)
+                new_pairs = {'date': date_str, 'Transactions': len(f.qs.filter(parent_id=csv))}
+                transaction_list.append(new_pairs)
+                fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
+                fromdate += relativedelta(years=1)
+                fromdate = str(fromdate)
+
+            responseData = {
+                'result': transaction_list,
+            }
+            return JsonResponse(responseData)
+
+
 
     elif request.GET['Type'] == 'Balance':
-        balance_list = [{'token' : "0", 'balance' : 0 }]
+        balance_list = [ ]
         balances = BalanceData.objects.filter(parent_id = csv)
-        print(balances)
         for i in balances:
             new_pairs = {'token' : i.contract_ticker_symbol, 'balance' : i.balance }
             balance_list.append(new_pairs)
