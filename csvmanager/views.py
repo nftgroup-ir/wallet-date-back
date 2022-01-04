@@ -994,8 +994,10 @@ def Chart(request):
             while fromdate <= todate:
                 p = TransactionFilter({'block_timestamp_after': fromdate , 'block_timestamp_before': fromdate})
                 date = datetime.strptime(fromdate, '%Y-%m-%d').date()
-                date_str = str(date.month)+'/'+str(date.day)
-                new_pairs = {'date': date_str , 'Transactions' : len(p.qs.filter(parent_id = csv)) }
+                date_str = str(date)
+                timestamp_date = time.mktime(datetime.strptime(date_str, "%Y-%m-%d").timetuple())
+                # date_str = str(date.month)+'/'+str(date.day)
+                new_pairs = {'date': timestamp_date , 'Transactions' : len(p.qs.filter(parent_id = csv)) }
                 transaction_list.append(new_pairs)
                 fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 fromdate += timedelta(days=1)
@@ -1017,8 +1019,9 @@ def Chart(request):
                 next_month = str(next_month)
                 f = TransactionFilter({'block_timestamp_after': fromdate, 'block_timestamp_before': next_month})
                 date = datetime.strptime(fromdate, '%Y-%m-%d').date()
-                date_str = str(date.year) + '/' + str(date.month)
-                new_pairs = {'date': date_str, 'Transactions': len(f.qs.filter(parent_id=csv))}
+                date_str = str(date)
+                timestamp_date = time.mktime(datetime.strptime(date_str, "%Y-%m-%d").timetuple())
+                new_pairs = {'date': timestamp_date, 'Transactions': len(f.qs.filter(parent_id=csv))}
                 transaction_list.append(new_pairs)
                 fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 fromdate += relativedelta(months=1)
@@ -1041,8 +1044,9 @@ def Chart(request):
                 last_month_of_year = str(last_month_of_year)
                 f = TransactionFilter({'block_timestamp_after': fromdate, 'block_timestamp_before': last_month_of_year})
                 date = datetime.strptime(fromdate, '%Y-%m-%d').date()
-                date_str = str(date.year) + '/' + str(date.month)
-                new_pairs = {'date': date_str, 'Transactions': len(f.qs.filter(parent_id=csv))}
+                date_str = str(date)
+                timestamp_date = time.mktime(datetime.strptime(date_str, "%Y-%m-%d").timetuple())
+                new_pairs = {'date': timestamp_date, 'Transactions': len(f.qs.filter(parent_id=csv))}
                 transaction_list.append(new_pairs)
                 fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 fromdate += relativedelta(years=1)
