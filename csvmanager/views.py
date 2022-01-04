@@ -921,7 +921,7 @@ def Chart(request):
     csv = CSV.objects.filter(address=request.GET['address'])[0].id
     if request.GET['Type'] == 'NFT':
         if request.GET['TimeBase'] == 'day':
-            nft_list = [{'date' : "0", 'NFTs' : 0 }]
+            nft_list = []
             fromdate = request.GET['fromdate']
             todate = request.GET['todate']
 
@@ -941,7 +941,7 @@ def Chart(request):
             return JsonResponse(responseData)
 
         elif request.GET['TimeBase'] == 'month':
-            nft_list = [{'date': "0", 'NFTs': 0}]
+            nft_list = []
             fromdate = request.GET['fromdate']
             todate = request.GET['todate']
 
@@ -964,7 +964,7 @@ def Chart(request):
             return JsonResponse(responseData)
 
         elif request.GET['TimeBase'] == 'year':
-            nft_list = [{'date': "0", 'NFTs': 0}]
+            nft_list = []
             fromdate = request.GET['fromdate']
             todate = request.GET['todate']
 
@@ -988,7 +988,7 @@ def Chart(request):
 
     elif request.GET['Type'] == 'Transaction':
         if request.GET['TimeBase'] == 'day':
-            transaction_list = [{'date' : "0", 'Transactions' : 0 }]
+            transaction_list = []
             fromdate = request.GET['fromdate']
             todate = request.GET['todate']
 
@@ -1010,7 +1010,7 @@ def Chart(request):
             return JsonResponse(responseData)
 
         elif request.GET['TimeBase'] == 'month':
-            transaction_list = [{'date': "0", 'Transactions': 0}]
+            transaction_list = []
             fromdate = request.GET['fromdate']
             todate = request.GET['todate']
 
@@ -1035,7 +1035,7 @@ def Chart(request):
 
 
         elif request.GET['TimeBase'] == 'year':
-            transaction_list = [{'date': "0", 'Transactions': 0}]
+            transaction_list = []
             fromdate = request.GET['fromdate']
             todate = request.GET['todate']
 
