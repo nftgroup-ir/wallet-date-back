@@ -918,7 +918,8 @@ class BalanceFilter(django_filters.FilterSet):
 
 
 def Chart(request):
-    csv = CSV.objects.filter(address=request.GET['address'])[0].id
+    Address= request.GET['address']
+    csv = CSV.objects.filter(address=Address)[0].id
     if request.GET['Type'] == 'NFT':
         if request.GET['TimeBase'] == 'day':
             nft_list = []
@@ -998,7 +999,7 @@ def Chart(request):
                 date_str = str(date)
                 timestamp_date = time.mktime(datetime.strptime(date_str, "%Y-%m-%d").timetuple())
                 # date_str = str(date.month)+'/'+str(date.day)
-                new_pairs = {'date': timestamp_date , 'Transactions' : len(p.qs.filter(parent_id = csv)) }
+                new_pairs = {'date': timestamp_date ,'send': len(p.qs.filter(from_address=Address)),'receive': len(p.qs.filter(to_address=Address)),'total': len(p.qs.filter(from_address=Address))+len(p.qs.filter(to_address=Address))}
                 transaction_list.append(new_pairs)
                 fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 fromdate += timedelta(days=1)
@@ -1022,7 +1023,7 @@ def Chart(request):
                 date = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 date_str = str(date)
                 timestamp_date = time.mktime(datetime.strptime(date_str, "%Y-%m-%d").timetuple())
-                new_pairs = {'date': timestamp_date, 'Transactions': len(f.qs.filter(parent_id=csv))}
+                new_pairs = {'date': timestamp_date,'send': len(f.qs.filter(from_address=Address)),'receive': len(f.qs.filter(to_address=Address)),'total': len(f.qs.filter(from_address=Address))+len(f.qs.filter(to_address=Address))}
                 transaction_list.append(new_pairs)
                 fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 fromdate += relativedelta(months=1)
@@ -1047,7 +1048,7 @@ def Chart(request):
                 date = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 date_str = str(date)
                 timestamp_date = time.mktime(datetime.strptime(date_str, "%Y-%m-%d").timetuple())
-                new_pairs = {'date': timestamp_date, 'Transactions': len(f.qs.filter(parent_id=csv))}
+                new_pairs = {'date': timestamp_date, 'send': len(f.qs.filter(from_address=Address)),'receive': len(f.qs.filter(to_address=Address)),'total': len(f.qs.filter(from_address=Address))+len(f.qs.filter(to_address=Address))}
                 transaction_list.append(new_pairs)
                 fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 fromdate += relativedelta(years=1)
