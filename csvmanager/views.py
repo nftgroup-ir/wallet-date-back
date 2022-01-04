@@ -1,3 +1,4 @@
+import decimal
 from typing import Counter
 from django.db.models.fields import DecimalField
 from django.shortcuts import render
@@ -1063,7 +1064,7 @@ def Chart(request):
         balance_list = [ ]
         balances = BalanceData.objects.filter(parent_id = csv)
         for i in balances:
-            new_pairs = {'token' : i.contract_ticker_symbol, 'balance' : i.int_balance }
+            new_pairs = {'token' : i.contract_ticker_symbol, 'balance' : float(i.int_balance) }
             balance_list.append(new_pairs)
             
         responseData = {
