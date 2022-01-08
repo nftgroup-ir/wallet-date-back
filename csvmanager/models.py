@@ -5,6 +5,12 @@ from django.db import models
 
 # Create your models here.
 
+class Tags(models.Model):
+    name = models.CharField(max_length=120 , unique = True)
+    important = models.BooleanField(default=False)
+    def __str__ (self):
+        return self.name
+
 
 class CSV(models.Model):
     address = models.CharField(max_length=120,unique = True)
@@ -12,6 +18,7 @@ class CSV(models.Model):
     total_Txs = models.BigIntegerField(null=True)
     balance = models.TextField(null=True)
     special = models.BooleanField(default=False)
+    Tags = models.ForeignKey(Tags , on_delete=models.CASCADE , null = True, default = None)
     def __str__ (self):
         return self.address
 

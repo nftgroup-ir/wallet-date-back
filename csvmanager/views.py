@@ -496,6 +496,8 @@ class NFTListCreate(generics.ListCreateAPIView):
             queryset = queryset.filter(block_number_minted=self.request.GET['BlockNumberMintedValue'])
         if self.request.GET['OwnerOfValue'] != "":
             queryset = queryset.filter(owner_of=self.request.GET['OwnerOfValue'])
+        if self.request.GET['TagsValue'] != "":
+            queryset = queryset.filter(nft_company=self.request.GET['TagsValue'])
 
 
 
@@ -1113,3 +1115,6 @@ def getBlocksURL(request):
         'result': 'shod',
     }
     return JsonResponse(responseData)
+
+
+class tagsDetail(generics.ListCreateAPIView):
