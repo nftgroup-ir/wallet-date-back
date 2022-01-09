@@ -894,7 +894,9 @@ def NFTCompanyEtherscanScraper(request):
                 new_nftcompany, created = NftCompany.objects.update_or_create(site_url = site_url, defaults = {
                     'site_url': site_url,
                     'name' : name,
+                    'smartContract':i
                     })
+                print(new_nftcompany.id)
         except:
             pass
 
@@ -1117,4 +1119,24 @@ def getBlocksURL(request):
     return JsonResponse(responseData)
 
 
-class tagsDetail(generics.ListCreateAPIView):
+def tagsDetail(request):
+    nftAll = NFT.objects.all()
+    for i in nftAll:
+        if i.nft_company:
+            nftCompany = NftCompany.objects.filter(name = i.nft_company)[0]
+            walletId = CSV.objects.filter(address = i.owner_of).values_list('id')[0][0]
+            print(walletId)
+            print(nftCompany)
+            for k in CompanyFeature.objects.filter(nft_company = nftCompany):
+                print(k.name)
+                new_tag , created = Tags.objects.get_or_create(name = k.name , 
+                defaults ={
+                    'important': False,
+                })
+                new_tag.wallet_tags.add(walletId)
+        else:
+            print('nadare')
+    responseData = {
+        'result': 'shod',
+    }
+    return JsonResponse(responseData)

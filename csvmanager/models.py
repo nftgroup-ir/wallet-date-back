@@ -4,13 +4,11 @@ from django.db import models
 
 
 # Create your models here.
-
 class Tags(models.Model):
     name = models.CharField(max_length=120 , unique = True)
     important = models.BooleanField(default=False)
     def __str__ (self):
         return self.name
-
 
 class CSV(models.Model):
     address = models.CharField(max_length=120,unique = True)
@@ -18,14 +16,16 @@ class CSV(models.Model):
     total_Txs = models.BigIntegerField(null=True)
     balance = models.TextField(null=True)
     special = models.BooleanField(default=False)
-    Tags = models.ForeignKey(Tags , on_delete=models.CASCADE , null = True, default = None)
+    tags = models.ManyToManyField(Tags, related_name = "wallet_tags")
     def __str__ (self):
         return self.address
+
 
 
 class NftCompany(models.Model):
     name = models.CharField(max_length=120)
     site_url = models.URLField(max_length=120, unique = True)
+    smartContract = models.CharField(max_length=120,null =True)
 
     def __str__(self):
         return self.name
@@ -51,8 +51,8 @@ class BalanceData(models.Model):
     quote_rate_24h = models.TextField(null=True,blank=True)
     quote = models.TextField(null=True,blank=True)
     quote_24h = models.TextField(null=True,blank=True)
-    max_balance= models.BooleanField(null=True,default=False,blank=True)
-    int_balance=models.DecimalField(null=True,max_digits=65,decimal_places=19,blank=True)
+    # max_balance= models.BooleanField(null=True,default=False,blank=True)
+    # int_balance=models.DecimalField(null=True,max_digits=65,decimal_places=19,blank=True)
 
 
 
