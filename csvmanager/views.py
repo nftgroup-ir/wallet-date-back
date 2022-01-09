@@ -1125,17 +1125,20 @@ def tagsDetail(request):
         if i.nft_company:
             nftCompany = NftCompany.objects.filter(name = i.nft_company)[0]
             walletId = CSV.objects.filter(address = i.owner_of).values_list('id')[0][0]
-            print(walletId)
-            print(nftCompany)
             for k in CompanyFeature.objects.filter(nft_company = nftCompany):
-                print(k.name)
                 new_tag , created = Tags.objects.get_or_create(name = k.name , 
                 defaults ={
                     'important': False,
                 })
                 new_tag.wallet_tags.add(walletId)
         else:
-            print('nadare')
+            nftCompany = NftCompany.objects.all() 
+            for j in nftCompany:
+                if i.token_address == j.smartContract:
+                    i.nft_company_id = j.id 
+                    i.save()
+                    print(i,"---",i.id,"---",i.nft_company_id, "----" , j.smartContract)
+                    print('nft company added')
     responseData = {
         'result': 'shod',
     }
