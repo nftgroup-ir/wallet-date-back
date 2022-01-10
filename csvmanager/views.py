@@ -1007,8 +1007,8 @@ def Chart(request):
                 # date_str = str(date.month)+'/'+str(date.day)
                 send = len(sendGet.filter(block_timestamp__range=[fromdate , fromdate]))
                 receive = len(receiveGet.filter(block_timestamp__range=[fromdate , fromdate]))
-                print(send ,'-----------------------------',sendGet.filter(block_timestamp__range=[fromdate , last_month_of_year]))
-                print(receive ,'-----------------------------',receiveGet.filter(block_timestamp__range=[fromdate , last_month_of_year]))
+                print(send ,'-----------------------------',sendGet.filter(block_timestamp__range=[fromdate , fromdate]))
+                print(receive ,'-----------------------------',receiveGet.filter(block_timestamp__range=[fromdate , fromdate]))
                 new_pairs = {'date': timestamp_date ,'send': send,'receive': receive,'total': send + receive}
                 transaction_list.append(new_pairs)
                 fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
