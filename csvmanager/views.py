@@ -1089,7 +1089,7 @@ def Chart(request):
                 # print(len(f),"inja",f ,"-----------" , f.filter(to_address=Address))
                 send = len(sendGet.filter(block_timestamp__range=[fromdate , last_month_of_year]))
                 receive = len(receiveGet.filter(block_timestamp__range=[fromdate , last_month_of_year]))
-                print(send.filter(to_address=Address).explain( analyze=True))
+                print('-----------------------------------------------------------')
                 new_pairs = {'date': timestamp_date ,'send': send,'receive': receive,'total': send + receive}
                 transaction_list.append(new_pairs)
                 fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
