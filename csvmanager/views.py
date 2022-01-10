@@ -1043,25 +1043,52 @@ def Chart(request):
             return JsonResponse(responseData)
 
 
+        # elif request.GET['TimeBase'] == 'year':
+        #     transaction_list = []
+        #     fromdate = request.GET['fromdate']
+        #     todate = request.GET['todate']
+        #     print(fromdate , '------------------------------', todate)
+
+        #     while fromdate <= todate:
+        #         last_month_of_year = datetime.strptime(fromdate, '%Y-%m-%d').date()
+        #         last_month_of_year += relativedelta(years=1)
+        #         last_month_of_year = str(last_month_of_year)
+        #         # f = TransactionFilter({'block_timestamp_after': fromdate, 'block_timestamp_before': last_month_of_year})
+        #         f = Transaction.objects.filter(block_timestamp__range=[fromdate , last_month_of_year])
+        #         date = datetime.strptime(fromdate, '%Y-%m-%d').date()
+        #         date_str = str(date)
+        #         timestamp_date = time.mktime(datetime.strptime(date_str, "%Y-%m-%d").timetuple())
+        #         # s = f.qs
+        #         print(len(f),"inja",f ,"-----------" , f.filter(to_address=Address))
+        #         send = len(f.filter(from_address=Address))
+        #         receive = len(f.filter(to_address=Address))
+        #         print(f.filter(to_address=Address).explain( analyze=True))
+        #         new_pairs = {'date': timestamp_date ,'send': send,'receive': receive,'total': send + receive}
+        #         transaction_list.append(new_pairs)
+        #         fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
+        #         fromdate += relativedelta(years=1)
+        #         fromdate = str(fromdate)
         elif request.GET['TimeBase'] == 'year':
             transaction_list = []
             fromdate = request.GET['fromdate']
             todate = request.GET['todate']
             print(fromdate , '------------------------------', todate)
+            sendGet = Transaction.objects.filter(from_address=Address)
+            receiveGet = Transaction.objects.filter(to_address=Address)
 
             while fromdate <= todate:
                 last_month_of_year = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 last_month_of_year += relativedelta(years=1)
                 last_month_of_year = str(last_month_of_year)
                 # f = TransactionFilter({'block_timestamp_after': fromdate, 'block_timestamp_before': last_month_of_year})
-                f = Transaction.objects.filter(block_timestamp__range=[fromdate , last_month_of_year])
+                # f = Transaction.objects.filter(block_timestamp__range=[fromdate , last_month_of_year])
                 date = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 date_str = str(date)
                 timestamp_date = time.mktime(datetime.strptime(date_str, "%Y-%m-%d").timetuple())
                 # s = f.qs
-                print(len(f),"inja",f ,"-----------" , f.filter(to_address=Address))
-                send = len(f.filter(from_address=Address))
-                receive = len(f.filter(to_address=Address))
+                # print(len(f),"inja",f ,"-----------" , f.filter(to_address=Address))
+                send = len(sendGet.filter(block_timestamp__range=[fromdate , last_month_of_year]))
+                receive = len(receiveGet.filter(block_timestamp__range=[fromdate , last_month_of_year]))
                 print(f.filter(to_address=Address).explain( analyze=True))
                 new_pairs = {'date': timestamp_date ,'send': send,'receive': receive,'total': send + receive}
                 transaction_list.append(new_pairs)
