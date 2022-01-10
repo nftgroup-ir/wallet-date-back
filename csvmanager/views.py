@@ -923,7 +923,7 @@ class BalanceFilter(django_filters.FilterSet):
 
 def Chart(request):
     Address= request.GET['address']
-    csv = CSV.objects.filter(address=Address)[0].id
+    # csv = CSV.objects.filter(address=Address)[0].id
     if request.GET['Type'] == 'NFT':
         if request.GET['TimeBase'] == 'day':
             nft_list = []
@@ -999,11 +999,15 @@ def Chart(request):
 
             while fromdate <= todate:
                 p = TransactionFilter({'block_timestamp_after': fromdate , 'block_timestamp_before': fromdate})
+                len(p)
                 date = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 date_str = str(date)
+                s = p.qs
+                send = len(s.filter(from_address=Address))
+                receive = len(s.filter(to_address=Address))
                 timestamp_date = time.mktime(datetime.strptime(date_str, "%Y-%m-%d").timetuple())
                 # date_str = str(date.month)+'/'+str(date.day)
-                new_pairs = {'date': timestamp_date ,'send': len(p.qs.filter(from_address=Address)),'receive': len(p.qs.filter(to_address=Address)),'total': len(p.qs.filter(from_address=Address))+len(p.qs.filter(to_address=Address))}
+                new_pairs = {'date': timestamp_date ,'send': send,'receive': receive,'total': send + receive}
                 transaction_list.append(new_pairs)
                 fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 fromdate += timedelta(days=1)
@@ -1043,16 +1047,23 @@ def Chart(request):
             transaction_list = []
             fromdate = request.GET['fromdate']
             todate = request.GET['todate']
+            print(fromdate , '------------------------------', todate)
 
             while fromdate <= todate:
                 last_month_of_year = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 last_month_of_year += relativedelta(years=1)
                 last_month_of_year = str(last_month_of_year)
-                f = TransactionFilter({'block_timestamp_after': fromdate, 'block_timestamp_before': last_month_of_year})
+                # f = TransactionFilter({'block_timestamp_after': fromdate, 'block_timestamp_before': last_month_of_year})
+                f = Transaction.objects.filter(block_timestamp__range=[fromdate , last_month_of_year])
                 date = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 date_str = str(date)
                 timestamp_date = time.mktime(datetime.strptime(date_str, "%Y-%m-%d").timetuple())
-                new_pairs = {'date': timestamp_date, 'send': len(f.qs.filter(from_address=Address)),'receive': len(f.qs.filter(to_address=Address)),'total': len(f.qs.filter(from_address=Address))+len(f.qs.filter(to_address=Address))}
+                # s = f.qs
+                print(len(f),"inja",f ,"-----------" , f.filter(to_address=Address))
+                send = len(f.filter(from_address=Address))
+                receive = len(f.filter(to_address=Address))
+                print(f.filter(to_address=Address).explain( analyze=True))
+                new_pairs = {'date': timestamp_date ,'send': send,'receive': receive,'total': send + receive}
                 transaction_list.append(new_pairs)
                 fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 fromdate += relativedelta(years=1)

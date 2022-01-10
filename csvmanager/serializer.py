@@ -17,6 +17,7 @@ class TransactionSerializer(ModelSerializer):
 
 class CSVserializer(ModelSerializer):
     transactions = serializers.SerializerMethodField()
+    # tags = serializers.SerializerMethodField()
     # balancedata = serializers.SerializerMethodField()
     nft = serializers.SerializerMethodField()
 
@@ -45,6 +46,9 @@ class CSVserializer(ModelSerializer):
         y = len(number_of_nfts)
         return  y
 
+    # def get_tags(self , id):
+    #     tags = Tags.objects.filter(wallet_tags = id)
+    #     return tags
 
 class BalanceDataSerializer(ModelSerializer):
     owner = serializers.SerializerMethodField()
