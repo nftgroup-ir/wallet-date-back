@@ -1,4 +1,7 @@
-from django.db import models
+from enum import unique
+from django.db import models, transaction
+from django.db.models.base import Model
+from toolz.itertoolz import count
 
 
 
@@ -133,3 +136,21 @@ class Block(models.Model):
     def __str__(self):
         return self.number
 
+class TokenTransactions(models.Model):
+    fromAddress = models.CharField(max_length=120, null=True)
+    toAddress = models.CharField(max_length=120, null=True)
+    tokenName = models.CharField(max_length=120, null=True)
+    tokenSymbol = models.CharField(max_length=120, null=True)
+    # token count
+    tokenDelta= models.DecimalField(null=True,max_digits=65,decimal_places=19,blank=True)
+    tokenDeltaUSD =models.DecimalField(null=True,max_digits=65,decimal_places=19,blank=True)
+    tokenSingle = models.DecimalField(null=True,max_digits=65,decimal_places=19,blank=True)
+    tokenSC =  models.CharField(max_length=120, null=True)
+    txType =  models.CharField(max_length=30, null=True)
+    tokenDecimal =  models.IntegerField(null=True)
+    Date = models.DateTimeField(null = True,blank=True)
+    ethDelta =  models.DecimalField(null=True,max_digits=65,decimal_places=19,blank=True)
+    blockNumber=  models.IntegerField(null=True)
+    txHash= models.CharField(max_length=120, null=True)
+    # transaction hash + token delta
+    unique = models.TextField( null=True)

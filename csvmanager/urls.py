@@ -23,6 +23,9 @@ urlpatterns = [
         path('csv/nftcompany/', views.NftCompanyListCreate.as_view() , name='NFTCompanyListCreate'),
         path('csv/chart/', views.Chart  , name = 'TXChart'),
         path('csv/get_tags/', views.tagsDetail  , name = 'tagsDetail'),
+        path('csv/get_tokentx/', views.tokenTxGetter  , name = 'tokentx'),
+        path('csv/get_tokentxreport/', views.tokenTxReporter  , name = 'tokentx'),
+
         #path('csv/get_balance/', views.balanceDetails, name = 'nftDetails'),
 ]
 

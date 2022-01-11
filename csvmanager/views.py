@@ -1,4 +1,5 @@
 import decimal
+from logging import error
 from typing import Counter
 from django.db.models.fields import DecimalField
 from django.shortcuts import render
@@ -28,6 +29,8 @@ from decimal import *
 import environ
 import os
 from .web3funcs import *
+from django.db.models import Q
+
 
 BASE_DIR = os.path.dirname(os.path.dirname((os.path.abspath(__file__))))
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
@@ -83,6 +86,77 @@ def TxCovaltGetter(walletAddress,walletID):
         print("Unexpected error:", sys.exc_info()[0])
         return False
     
+def TokenTxCovaltGetter(walletAddress,tokenSC):
+        response = requests.get(f"https://api.covalenthq.com/v1/1/address/{walletAddress}/transfers_v2/?contract-address={tokenSC}&key=ckey_12d0a9ab40ec40778e2f5f7965c")
+        if response.status_code == 200:
+            data = response.json()
+            for block in data['data']['items']:
+                for transfers in block['transfers']:
+                    Unique = transfers['tx_hash']+transfers['delta']
+                    obj, created = TokenTransactions.objects.update_or_create(unique = Unique,
+                            defaults={
+                                    "fromAddress" : transfers['from_address'],
+                                    "toAddress" : transfers['to_address'],
+                                    "tokenName" : transfers['contract_name'],
+                                    "tokenSymbol" : transfers['contract_ticker_symbol'],
+                                    "tokenDelta": Decimal(transfers['delta']),
+                                    "tokenSingle" : transfers['quote_rate'],
+                                    "tokenDeltaUSD" : transfers['delta_quote'],
+                                    "tokenSC" :  transfers['contract_address'],
+                                    "txType" :  transfers['transfer_type'] ,
+                                    "tokenDecimal" : transfers['contract_decimals'],
+                                    "Date" : transfers['block_signed_at'],
+                                    "ethDelta" :  block['gas_quote_rate'],
+                                    "blockNumber": block['block_height'],
+                                    "txHash": transfers['tx_hash'],
+                            }
+                    )
+
+            print('token transactions update for: ',walletAddress,)
+        elif response.status_code == 504 or response.status_code ==524 or response.status_code == 503:
+            time.sleep(10)
+
+        elif response.status_code == 429:
+            time.sleep(5)
+
+        else: 
+            print('transactions error for ',walletAddress , 'error code: ',response.status_code)
+        return True
+
+class TokenTransactionsFilter(django_filters.FilterSet):
+    last_transferred_at = DateFromToRangeFilter()
+    class Meta:
+        model = TokenTransactions
+        fields = ['Date']
+
+def TokenTxCovaltReporter (wallet,tokenSC,fromDate,toDate):
+    TokenTxCovaltGetter(wallet,tokenSC)
+    buyToken = 0
+    sellToken=0
+    spendETH=0
+    earnETH=0
+    decimal = 0
+    TXs = TokenTransactionsFilter({'Date_after': fromDate , 'Date_before': toDate})
+    TXs = TXs.qs.filter(
+        Q(fromAddress=wallet) |
+        Q(toAddress=wallet)
+    ).filter(tokenSC=tokenSC)
+    for tx in TXs:
+        if tx.txType=='IN':
+            buyToken += tx.tokenDelta
+            spendETH += tx.tokenDeltaUSD/tx.ethDelta
+        else:
+            sellToken += tx.tokenDelta
+            earnETH += tx.tokenDeltaUSD/tx.ethDelta   
+        decimal = tx.tokenDecimal    
+    return {
+        'wallet': wallet,
+        'buy token' :  Decimal(buyToken/(10**decimal)),
+        'spend eth': spendETH,
+        'sell token':  Decimal(sellToken/(10**decimal)),
+        'earnETH': earnETH
+    }
+
 
 
 def balanceCovaltGetter(walletAddress,walletID):
@@ -96,7 +170,6 @@ def balanceCovaltGetter(walletAddress,walletID):
             for k in data['data']['items']:
                 print(Counter)
                 Counter+=1
-                print(k['contract_decimals'],'==============')
                 if k['contract_decimals'] !=0:
                     balance= Decimal(int(k['balance'])/(10**int(k['contract_decimals']))) 
                     if math.trunc(balance)>10**47:
@@ -1183,3 +1256,24 @@ def tagsDetail(request):
         'result': 'shod',
     }
     return JsonResponse(responseData)
+
+
+def tokenTxGetter(request):
+    wallets = request.GET.getlist('wallet')
+    smartContract = request.GET['sc']
+    report={}
+    for wallet in wallets:
+        if TokenTxCovaltGetter(wallet,smartContract):report[wallet]='done'
+        else: msg = "error"
+    return JsonResponse(report)
+
+
+def tokenTxReporter(request):
+    wallets = request.GET.getlist('wallet')
+    smartContract = request.GET['sc']
+    fromDate = request.GET['from']
+    toDate = request.GET['to']
+    report = []
+    for wallet in wallets:
+        report.append(TokenTxCovaltReporter(wallet,smartContract,fromDate,toDate))
+    return JsonResponse({'data':report})
