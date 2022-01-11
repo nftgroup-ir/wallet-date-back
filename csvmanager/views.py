@@ -124,7 +124,7 @@ def TokenTxCovaltGetter(walletAddress,tokenSC):
         return True
 
 class TokenTransactionsFilter(django_filters.FilterSet):
-    last_transferred_at = DateFromToRangeFilter()
+    Date = DateFromToRangeFilter()
     class Meta:
         model = TokenTransactions
         fields = ['Date']
@@ -136,11 +136,14 @@ def TokenTxCovaltReporter (wallet,tokenSC,fromDate,toDate):
     spendETH=0
     earnETH=0
     decimal = 0
+    print(fromDate,toDate)
     TXs = TokenTransactionsFilter({'Date_after': fromDate , 'Date_before': toDate})
+  
     TXs = TXs.qs.filter(
         Q(fromAddress=wallet) |
         Q(toAddress=wallet)
     ).filter(tokenSC=tokenSC)
+    print(len(TXs))
     for tx in TXs:
         if tx.txType=='IN':
             buyToken += tx.tokenDelta
