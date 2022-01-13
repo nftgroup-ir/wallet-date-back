@@ -1083,8 +1083,6 @@ def Chart(request):
                 # date_str = str(date.month)+'/'+str(date.day)
                 send = len(sendGet.filter(block_timestamp__range=[fromdate , fromdate]))
                 receive = len(receiveGet.filter(block_timestamp__range=[fromdate , fromdate]))
-                print(send ,'-----------------------------',sendGet.filter(block_timestamp__range=[fromdate , fromdate]))
-                print(receive ,'-----------------------------',receiveGet.filter(block_timestamp__range=[fromdate , fromdate]))
                 new_pairs = {'date': timestamp_date ,'send': send,'receive': receive,'total': send + receive}
                 transaction_list.append(new_pairs)
                 fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
@@ -1150,7 +1148,6 @@ def Chart(request):
             transaction_list = []
             fromdate = request.GET['fromdate']
             todate = request.GET['todate']
-            print(fromdate , '------------------------------', todate)
             
 
             while fromdate <= todate:
@@ -1166,8 +1163,6 @@ def Chart(request):
                 # print(len(f),"inja",f ,"-----------" , f.filter(to_address=Address))
                 send = len(sendGet.filter(block_timestamp__range=[fromdate , last_month_of_year]))
                 receive = len(receiveGet.filter(block_timestamp__range=[fromdate , last_month_of_year]))
-                print(send ,'-----------------------------',sendGet.filter(block_timestamp__range=[fromdate , last_month_of_year]))
-                print(receive ,'-----------------------------',receiveGet.filter(block_timestamp__range=[fromdate , last_month_of_year]))
                 new_pairs = {'date': timestamp_date ,'send': send,'receive': receive,'total': send + receive}
                 transaction_list.append(new_pairs)
                 fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
@@ -1280,3 +1275,54 @@ def tokenTxReporter(request):
     for wallet in wallets:
         report.append(TokenTxCovaltReporter(wallet,smartContract,fromDate,toDate))
     return JsonResponse({'data':report})
+
+
+
+def TokenCompanyEtherscanScraper(request):
+    # driver = webdriver.Firefox(executable_path="C:\FireFoxDriver\geckodriver.exe")
+    options = Options()
+    options.add_argument("--no-sandbox")
+    options.add_argument("--headless")
+    firefox_binary = FirefoxBinary('/usr/bin/firefox')
+    if env('SERVER') == "1":
+        driver=webdriver.Firefox(options=options, firefox_binary=firefox_binary)
+    else:
+        driver = webdriver.Firefox(executable_path=env('DRIVER'))
+    balance = BalanceData.objects.values_list('contract_address', flat=True).distinct()
+    for i in balance:
+        try:
+            driver.get(f"https://etherscan.io/token/{i}")
+            name = driver.find_element(By.CSS_SELECTOR, '.h4 .text-secondary').text
+            site_url = driver.find_elements(By.CSS_SELECTOR, '.col-md-8')[5].find_element(By.CSS_SELECTOR, 'a').text
+
+            if "http" in site_url:
+                new_tokencompany, created = TokenCompany.objects.update_or_create(site_url = site_url, defaults = {
+                    'site_url': site_url,
+                    'name' : name,
+                    'ContractAddress':i
+                    })
+                print(new_nftcompany.id)
+        except:
+            pass
+
+class TokenCompanyListCreate(generics.ListCreateAPIView):
+    queryset = TokenCompany.objects.all()
+    serializer_class = TokenCompanySerializer
+
+    # def get_queryset(self, *args, **kwargs):
+    #     queryset = NftCompany.objects.all()
+
+    #     if self.request.GET['nameInput'] != "":
+    #         queryset = queryset.filter(name=self.request.GET['nameInput']).distinct()
+        
+    #     if self.request.GET['urlInput'] != "":
+    #         queryset = queryset.filter(site_url=self.request.GET['urlInput'])
+        
+    #     if self.request.GET['tagInput'] != "":
+    #         tags = self.request.GET.getlist('tagInput')
+    #         print(tags)
+    #         for tag in tags:
+    #             queryset = queryset.filter(Nft_Company_Features__name = tag)
+            
+        
+    #     return queryset.distinct()

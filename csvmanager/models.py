@@ -54,8 +54,8 @@ class BalanceData(models.Model):
     quote_rate_24h = models.TextField(null=True,blank=True)
     quote = models.TextField(null=True,blank=True)
     quote_24h = models.TextField(null=True,blank=True)
-    # max_balance= models.BooleanField(null=True,default=False,blank=True)
-    # int_balance=models.DecimalField(null=True,max_digits=65,decimal_places=19,blank=True)
+    max_balance= models.BooleanField(null=True,default=False,blank=True)
+    int_balance=models.DecimalField(null=True,max_digits=65,decimal_places=19,blank=True)
 
 
 
@@ -154,3 +154,8 @@ class TokenTransactions(models.Model):
     txHash= models.CharField(max_length=120, null=True)
     # transaction hash + token delta
     unique = models.TextField( null=True)
+
+class TokenCompany(models.Model):
+    name = models.CharField(max_length=120)
+    site_url = models.URLField(max_length=120, unique = True)
+    ContractAddress = models.CharField(max_length=120,null =True)

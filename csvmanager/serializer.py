@@ -116,7 +116,10 @@ class NFTCompanySerializer(ModelSerializer):
         else:
             return  feature
         
-
+class TokenCompanySerializer(ModelSerializer):
+    class Meta:
+        model = TokenCompany
+        fields = '__all__'
 
 
 
