@@ -1309,20 +1309,23 @@ class TokenCompanyListCreate(generics.ListCreateAPIView):
     queryset = TokenCompany.objects.all()
     serializer_class = TokenCompanySerializer
 
-    # def get_queryset(self, *args, **kwargs):
-    #     queryset = NftCompany.objects.all()
+    def get_queryset(self, *args, **kwargs):
+        queryset = TokenCompany.objects.all()
 
-    #     if self.request.GET['nameInput'] != "":
-    #         queryset = queryset.filter(name=self.request.GET['nameInput']).distinct()
+        if self.request.GET['nameInput'] != "":
+            queryset = queryset.filter(name=self.request.GET['nameInput']).distinct()
         
-    #     if self.request.GET['urlInput'] != "":
-    #         queryset = queryset.filter(site_url=self.request.GET['urlInput'])
+        if self.request.GET['urlInput'] != "":
+            queryset = queryset.filter(site_url=self.request.GET['urlInput'])
         
-    #     if self.request.GET['tagInput'] != "":
-    #         tags = self.request.GET.getlist('tagInput')
-    #         print(tags)
-    #         for tag in tags:
-    #             queryset = queryset.filter(Nft_Company_Features__name = tag)
+        if self.request.GET['tokenAddressInput'] != "":
+            queryset = queryset.filter(ContractAddress=self.request.GET['tokenAddressInput'])
+        
+        # if self.request.GET['tagInput'] != "":
+        #     tags = self.request.GET.getlist('tagInput')
+        #     print(tags)
+        #     for tag in tags:
+        #         queryset = queryset.filter(Nft_Company_Features__name = tag)
             
         
-    #     return queryset.distinct()
+        return queryset.distinct()
