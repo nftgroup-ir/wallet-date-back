@@ -27,6 +27,7 @@ urlpatterns = [
         path('csv/get_tokentxreport/', views.tokenTxReporter  , name = 'tokentx'),
         path('csv/get_tokencompany/', views.TokenCompanyEtherscanScraper, name = 'GetTokenCompany'),
         path('csv/tokencompany/', views.TokenCompanyListCreate.as_view() , name='TokenCompanyListCreate'),
+        path('csv/dashboard/', views.dashboardDetail , name='dashboard') ,
 
         #path('csv/get_balance/', views.balanceDetails, name = 'nftDetails'),
 ]

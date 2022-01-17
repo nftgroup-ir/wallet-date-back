@@ -1329,3 +1329,19 @@ class TokenCompanyListCreate(generics.ListCreateAPIView):
             
         
         return queryset.distinct()
+
+def dashboardDetail(request):
+    tableType = request.GET['table']
+    walletAddress = request.GET['walletAddress']
+    parentID = CSV.objects.filter(address=walletAddress)[0].id
+    if tableType == 'balance':
+        responseData = list(BalanceData.objects.filter(parent_id = parentID)[:10].values())
+
+    elif tableType == 'NFT':
+        responseData =list(NFT.objects.filter(parent_id = parentID)[:10].values())
+
+        
+    elif tableType == 'transaction':
+        responseData = list(Transaction.objects.filter(Q(from_address = walletAddress) | Q(to_address = walletAddress))[:10].values())
+    return JsonResponse(responseData , safe = False)
+        
