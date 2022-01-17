@@ -999,7 +999,7 @@ class BalanceFilter(django_filters.FilterSet):
 
 def Chart(request):
     Address= request.GET['address']
-    # csv = CSV.objects.filter(address=Address)[0].id
+    csv = CSV.objects.filter(address=Address)[0].id
     if request.GET['Type'] == 'NFT':
         if request.GET['TimeBase'] == 'day':
             nft_list = []
