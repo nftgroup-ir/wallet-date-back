@@ -1180,7 +1180,9 @@ def Chart(request):
         balance_list = [ ]
         balances = BalanceData.objects.filter(parent_id = csv)
         for i in balances:
-            new_pairs = {'category' : i.contract_ticker_symbol, 'value' : float(i.int_balance) }
+            balance = i.int_balance
+            if i.int_balance == null: balance=0
+            new_pairs = {'category' : i.contract_ticker_symbol, 'value' : float(balance) }
             balance_list.append(new_pairs)
             
         responseData = {
