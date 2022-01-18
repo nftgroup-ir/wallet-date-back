@@ -1181,7 +1181,7 @@ def Chart(request):
         balances = BalanceData.objects.filter(parent_id = csv)
         for i in balances:
             balance = i.int_balance
-            if i.int_balance == None: balance=0
+            if i.int_balance == None or i.int_balance==0: continue
             new_pairs = {'category' : i.contract_ticker_symbol, 'value' : float(balance) }
             balance_list.append(new_pairs)
             
