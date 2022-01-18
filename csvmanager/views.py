@@ -1346,4 +1346,8 @@ def dashboardDetail(request):
     elif tableType == 'transaction':
         responseData = list(Transaction.objects.filter(Q(from_address = walletAddress) | Q(to_address = walletAddress))[:10].values())
     return JsonResponse(responseData , safe = False)
-        
+
+def allTransactions(request):
+    walletAddress = request.GET['wallet']
+    responseData = list(Transaction.objects.filter(Q(from_address = walletAddress) | Q(to_address = walletAddress)).order_by('-value').values())
+    return JsonResponse(responseData , safe = False)
