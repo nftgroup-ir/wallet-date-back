@@ -1099,7 +1099,7 @@ def Chart(request):
             print('aaaa',send_information[0]['value'])
 
             for i in range(num_of_days):
-                combine_array.append({"date" : send_information[i]['date'], "send" : send_information[i]['value'], "receive" : receive_information[i]['value'],
+                combine_array.append({"date" : time.mktime(datetime.strptime(str(send_information[i]['date']), "%Y-%m-%d").timetuple()), "send" : send_information[i]['value'], "receive" : receive_information[i]['value'],
                                       "total" : send_information[i]['value'] + receive_information[i]['value']})
 
             responseData = {
