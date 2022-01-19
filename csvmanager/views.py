@@ -4,7 +4,7 @@ from typing import Counter
 from django.db.models.fields import DecimalField
 from django.shortcuts import render
 from rest_framework import generics
-
+from django.db import connection
 from csvmanager.web3funcs import TxWeb3BalanceByBlock 
 from .models import *
 from .serializer import *
@@ -829,10 +829,6 @@ def transactiondetails(request):
     return JsonResponse(responseData)
 
 
-
-
-        
-
 def  nftDetails(request):
     csv = CSV.objects.all()
     for index,i in enumerate(csv):
@@ -977,29 +973,28 @@ def NFTCompanyEtherscanScraper(request):
             pass
 
 
-class NFTFilter(django_filters.FilterSet):
-    synced_at = DateFromToRangeFilter()
-    class Meta:
-        model = NFT
-        fields = ['synced_at']
 
-class TransactionFilter(django_filters.FilterSet):
-    block_timestamp = DateFromToRangeFilter()
-    class Meta:
-        model = Transaction
-        fields = ['block_timestamp']
-
-class BalanceFilter(django_filters.FilterSet):
-    last_transferred_at = DateFromToRangeFilter()
-    class Meta:
-        model = BalanceData
-        fields = ['last_transferred_at']
-
-
+def make_days_array_address(fromdate, todate, own_array):
+    our_array = list(own_array)
+    fromdate_date = datetime.strptime(fromdate, '%Y-%m-%d').date()
+    todate_date = datetime.strptime(todate, '%Y-%m-%d').date()
+    num_of_days = (todate_date - fromdate_date).days+1
+    list_of_items = []
+    date = fromdate
+    date = datetime.strptime(date, '%Y-%m-%d').date()
+    j = 0
+    for i in range(num_of_days):
+        if len(our_array)-1 >= j :
+            if our_array[j][0].date() == date:
+                list_of_items.append({"date":date,"value":our_array[j][1]})
+                j +=1
+            else: list_of_items.append({"date":date,"value":0})
+        else: list_of_items.append({"date":date,"value":0})
+        date += timedelta(days=1)
+    return list_of_items
 
 def Chart(request):
     Address= request.GET['address']
-    # csv = CSV.objects.filter(address=Address)[0].id
     if request.GET['Type'] == 'NFT':
         if request.GET['TimeBase'] == 'day':
             nft_list = []
@@ -1071,28 +1066,48 @@ def Chart(request):
         sendGet = Transaction.objects.filter(from_address=Address)
         receiveGet = Transaction.objects.filter(to_address=Address)
         if request.GET['TimeBase'] == 'day':
-            transaction_list = []
-            fromdate = request.GET['fromdate']
-            todate = request.GET['todate']
 
-            while fromdate <= todate:
-                # p = TransactionFilter({'block_timestamp_after': fromdate , 'block_timestamp_before': fromdate})
-                date = datetime.strptime(fromdate, '%Y-%m-%d').date()
-                date_str = str(date)
-                timestamp_date = time.mktime(datetime.strptime(date_str, "%Y-%m-%d").timetuple())
-                # date_str = str(date.month)+'/'+str(date.day)
-                send = len(sendGet.filter(block_timestamp__range=[fromdate , fromdate]))
-                receive = len(receiveGet.filter(block_timestamp__range=[fromdate , fromdate]))
-                new_pairs = {'date': timestamp_date ,'send': send,'receive': receive,'total': send + receive}
-                transaction_list.append(new_pairs)
-                fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
-                fromdate += timedelta(days=1)
-                fromdate = str(fromdate)
+            # first_day(fromdate)
+            fromdate = request.GET['fromdate']
+            date = datetime.strptime(fromdate, '%Y-%m-%d').date()
+            date_str = str(date)
+
+            # last_day(todate)
+            todate = request.GET['todate']
+            date_last = datetime.strptime(todate, '%Y-%m-%d').date()
+            date_last += timedelta(days=1)
+            date_str_last = str(date_last)
+
+            #num_of_days
+            fromdate_date = datetime.strptime(fromdate, '%Y-%m-%d').date()
+            todate_date = datetime.strptime(todate, '%Y-%m-%d').date()
+            num_of_days = (todate_date - fromdate_date).days + 1
+            cursor = connection.cursor()
+
+            #send
+            send = cursor.execute('SELECT block_timestamp,COUNT(*) FROM wallet.csvmanager_transaction where from_address = %s and block_timestamp between %s and %s group by block_timestamp order by block_timestamp asc',[Address, date_str, date_str_last])
+            send_row = cursor.fetchall()
+            #receive
+            receive = cursor.execute('SELECT block_timestamp,COUNT(*) FROM wallet.csvmanager_transaction where to_address = %s and block_timestamp between %s and %s group by block_timestamp order by block_timestamp asc',[Address, date_str, date_str_last])
+            receive_row = cursor.fetchall()
+            send_information = make_days_array_address(request.GET['fromdate'], request.GET['todate'], send_row)
+            receive_information = make_days_array_address(request.GET['fromdate'], request.GET['todate'], receive_row)
+
+
+            combine_array = []
+            print('aaaa',send_information[0]['value'])
+
+            for i in range(num_of_days):
+                combine_array.append({"date" : send_information[i]['date'], "send" : send_information[i]['value'], "receive" : receive_information[i]['value'],
+                                      "total" : send_information[i]['value'] + receive_information[i]['value']})
 
             responseData = {
-                'result': transaction_list,
+                'result': combine_array
+
             }
             return JsonResponse(responseData)
+
+
 
         elif request.GET['TimeBase'] == 'month':
             transaction_list = []
@@ -1118,37 +1133,10 @@ def Chart(request):
             }
             return JsonResponse(responseData)
 
-
-        # elif request.GET['TimeBase'] == 'year':
-        #     transaction_list = []
-        #     fromdate = request.GET['fromdate']
-        #     todate = request.GET['todate']
-        #     print(fromdate , '------------------------------', todate)
-
-        #     while fromdate <= todate:
-        #         last_month_of_year = datetime.strptime(fromdate, '%Y-%m-%d').date()
-        #         last_month_of_year += relativedelta(years=1)
-        #         last_month_of_year = str(last_month_of_year)
-        #         # f = TransactionFilter({'block_timestamp_after': fromdate, 'block_timestamp_before': last_month_of_year})
-        #         f = Transaction.objects.filter(block_timestamp__range=[fromdate , last_month_of_year])
-        #         date = datetime.strptime(fromdate, '%Y-%m-%d').date()
-        #         date_str = str(date)
-        #         timestamp_date = time.mktime(datetime.strptime(date_str, "%Y-%m-%d").timetuple())
-        #         # s = f.qs
-        #         print(len(f),"inja",f ,"-----------" , f.filter(to_address=Address))
-        #         send = len(f.filter(from_address=Address))
-        #         receive = len(f.filter(to_address=Address))
-        #         print(f.filter(to_address=Address).explain( analyze=True))
-        #         new_pairs = {'date': timestamp_date ,'send': send,'receive': receive,'total': send + receive}
-        #         transaction_list.append(new_pairs)
-        #         fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
-        #         fromdate += relativedelta(years=1)
-        #         fromdate = str(fromdate)
         elif request.GET['TimeBase'] == 'year':
             transaction_list = []
             fromdate = request.GET['fromdate']
             todate = request.GET['todate']
-            
 
             while fromdate <= todate:
                 last_month_of_year = datetime.strptime(fromdate, '%Y-%m-%d').date()
@@ -1178,9 +1166,10 @@ def Chart(request):
 
     elif request.GET['Type'] == 'Balance':
         balance_list = [ ]
-        balances = BalanceData.objects.filter(parent_id = csv)
+        cv_id = CSV.objects.filter(address = Address)[0].id
+        balances = BalanceData.objects.filter(parent_id = cv_id)
         for i in balances:
-            new_pairs = {'token' : i.contract_ticker_symbol, 'balance' : float(i.int_balance) }
+            new_pairs = {'token' : i.contract_ticker_symbol, 'balance' : i.balance }
             balance_list.append(new_pairs)
             
         responseData = {

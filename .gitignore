@@ -137,3 +137,4 @@ csvmanager/migrations/0001_initial.py
 csvmanager/migrations/0002_auto_20211228_1352.py
 csvmanager/migrations/0003_auto_20211229_1527.py
 csvmanager/migrations/0004_alter_nftcompany_site_url.py
+csvmanager/migrations/0001_initial.py
