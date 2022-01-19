@@ -1153,7 +1153,7 @@ def Chart(request):
                 # print(len(f),"inja",f ,"-----------" , f.filter(to_address=Address))
                 send = len(sendGet.filter(block_timestamp__range=[fromdate , last_month_of_year]))
                 receive = len(receiveGet.filter(block_timestamp__range=[fromdate , last_month_of_year]))
-                new_pairs = {'date': timestamp_date ,'send': send,'receive': receive,'total': send + receive}
+                new_pairs = {'normal_date':date_str,'date': timestamp_date ,'send': send,'receive': receive,'total': send + receive}
                 transaction_list.append(new_pairs)
                 fromdate = datetime.strptime(fromdate, '%Y-%m-%d').date()
                 fromdate += relativedelta(years=1)
