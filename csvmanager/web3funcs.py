@@ -32,6 +32,7 @@ def getBlocks(fromNumber,toNumber):
     for i in range(fromNumber,toNumber):
         block = w3.eth.getBlock(i,True)
         print('---------------------------',block.number,'--------------------------')
+        print(datetime.fromtimestamp(block.timestamp))
         if block != None:
                 Block.objects.update_or_create(number=block.number,defaults = {
                                     # 'baseFeePerGas':  isExist(block.baseFeePerGas),
