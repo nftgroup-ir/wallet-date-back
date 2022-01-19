@@ -58,6 +58,7 @@ def getBlocks(fromNumber,toNumber):
                 if block.transactions != None:
                     for i in block.transactions:
                         print('from: ',i['from'],' to: ',i['to'])
+                        print(datetime.fromtimestamp(block.timestamp))
                         try:
                             obj , created = Transaction.objects.update_or_create(
                                                         hash = removeHExBytes(i.hash),
