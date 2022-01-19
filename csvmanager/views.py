@@ -995,8 +995,9 @@ def make_days_array_address(fromdate, todate, own_array):
 
 def Chart(request):
     Address= request.GET['address']
-    csv = CSV.objects.filter(address=Address)[0].id
     if request.GET['Type'] == 'NFT':
+        csv = CSV.objects.filter(address=Address)[0].id
+
         if request.GET['TimeBase'] == 'day':
             nft_list = []
             fromdate = request.GET['fromdate']
