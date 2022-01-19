@@ -66,6 +66,7 @@ def getBlocks(fromNumber,toNumber):
                                                                 'nonc': i.nonce,
                                                                 'transaction_index': i.transactionIndex,
                                                                 'from_address': i['from'],
+                                                                'to_address': i['to'],
                                                                 'value': i.value,
                                                                 'gas': i.gas,
                                                                 'gas_price': i.gasPrice,

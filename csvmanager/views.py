@@ -983,14 +983,21 @@ def make_days_array_address(fromdate, todate, own_array):
     date = fromdate
     date = datetime.strptime(date, '%Y-%m-%d').date()
     j = 0
+    nowDate = our_array[j][0].date()
     for i in range(num_of_days):
         if len(our_array)-1 >= j :
-            if our_array[j][0].date() == date:
+            if our_array[j][0].date() == nowDate:
                 list_of_items.append({"date":date,"value":our_array[j][1]})
                 j +=1
-            else: list_of_items.append({"date":date,"value":0})
-        else: list_of_items.append({"date":date,"value":0})
-        date += timedelta(days=1)
+            else: 
+                list_of_items.append({"date":date,"value":0})
+                nowDate += timedelta(days=1)
+
+        else: 
+            list_of_items.append({"date":date,"value":0})
+            nowDate += timedelta(days=1)
+
+
     return list_of_items
 
 def Chart(request):
