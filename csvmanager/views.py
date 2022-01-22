@@ -984,13 +984,33 @@ def make_days_array_address(fromdate, todate, own_array):
     date = datetime.strptime(date, '%Y-%m-%d').date()
     j = 0
     for i in range(num_of_days):
-        if len(our_array)-1 >= j :
-            if our_array[j][0].date() == date:
-                list_of_items.append({"date":date,"value":our_array[j][1]})
-                j +=1
-            else: list_of_items.append({"date":date,"value":0})
-        else: list_of_items.append({"date":date,"value":0})
-        date += timedelta(days=1)
+        # if len(our_array)-1 >= j :
+        #     if our_array[j][0].date() == date:
+        #         list_of_items.append({"date":date,"value":our_array[j][1]})
+        #         j +=1
+        #     else: list_of_items.append({"date":date,"value":0})
+        # else: list_of_items.append({"date":date,"value":0})
+        # date += timedelta(days=1)
+        value = 0
+        while j <= len(our_array)-1:
+            temp = our_array[j][1]
+            if j != 0:
+                if  our_array[j][0].date() == our_array[j - 1][0].date():
+                    value += temp
+                    if  our_array[j][0].date() != our_array[j + 1][0].date():
+                        list_of_items.append({"date":date,"value": value)
+                else: 
+                    value = temp
+                    if  our_array[j][0].date() != our_array[j + 1][0].date():
+                        list_of_items.append({"date":date,"value": value)
+            else: 
+                value = temp
+                if  our_array[j][0].date() != our_array[j + 1][0].date():
+                        list_of_items.append({"date":date,"value": value)
+            j += 1 
+        if j > len(our_array)-1:
+            list_of_items.append({"date":date,"value":0})
+
     return list_of_items
 
 def Chart(request):
