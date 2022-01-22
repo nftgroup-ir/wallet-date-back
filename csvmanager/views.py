@@ -992,8 +992,8 @@ def make_days_array_address(fromdate, todate, own_array):
         # else: list_of_items.append({"date":date,"value":0})
         # date += timedelta(days=1)
         value = 0
-        if our_array[j][0].date() == date:
-            while j <= len(our_array)-1:
+        while j <= len(our_array)-1:
+            if our_array[j][0].date() == date:
                 temp = our_array[j][1]
                 if j != 0:
                     if  our_array[j][0].date() == our_array[j - 1][0].date():
@@ -1018,10 +1018,10 @@ def make_days_array_address(fromdate, todate, own_array):
                     else:
                             list_of_items.append({"date":date,"value": value})
                 j += 1 
-            if j > len(our_array)-1:
+                if j > len(our_array)-1:
+                    list_of_items.append({"date":date,"value":0})
+            else:
                 list_of_items.append({"date":date,"value":0})
-        else:
-            list_of_items.append({"date":date,"value":0})
         date += timedelta(days=1)
 
     return list_of_items
